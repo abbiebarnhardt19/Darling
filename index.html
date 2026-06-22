@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Abbie + Ben 🎀</title>
+  <link rel="stylesheet" href="themes.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--nav-bg);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--nav-text);
+      text-decoration: none;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Pink house icon with heart */
+    .nav-logo .house-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-logo .house-icon::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 6px,
+        rgba(255,255,255,0.08) 6px,
+        rgba(255,255,255,0.08) 7px
+      );
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 4px;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: var(--nav-text);
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+      font-family: 'Georgia', serif;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* ── THEME TOGGLE ── */
+    .theme-toggle-wrapper { margin-left: 12px; }
+
+    .theme-toggle {
+      position: relative;
+      display: inline-block;
+      width: 64px;
+      height: 32px;
+      cursor: pointer;
+    }
+
+    .theme-toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .theme-toggle .track {
+      position: absolute;
+      inset: 0;
+      background: var(--toggle-track);
+      border-radius: 32px;
+      transition: background 0.35s ease;
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+
+    .theme-toggle .knob {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.35s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      user-select: none;
+    }
+
+    .theme-toggle .knob::after { content: "🎀"; }
+    [data-theme="dark"] .theme-toggle .knob { transform: translateX(32px); }
+    [data-theme="dark"] .theme-toggle .knob::after { content: "🏀"; }
+
+    /* ── DATING BANNER ── */
+    .dating-banner {
+      background: var(--banner-bg);
+      color: var(--banner-text);
+      text-align: center;
+      padding: 12px 20px;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .dating-banner .counter-pill {
+      background: rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 3px 14px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      white-space: nowrap;
+    }
+
+    /* ── CAROUSEL ── */
+    .carousel-section {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      background: var(--bg-secondary);
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
+      height: 520px;
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      height: 520px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-secondary);
+      flex-shrink: 0;
+    }
+
+    .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .carousel-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      height: 100%;
+      width: 100%;
+    }
+
+    .carousel-placeholder .big-icon { font-size: 3rem; }
+
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.75);
+      border: none;
+      border-radius: 50%;
+      width: 46px;
+      height: 46px;
+      font-size: 1.3rem;
+      cursor: pointer;
+      z-index: 10;
+      transition: background 0.2s, transform 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .carousel-btn:hover {
+      background: rgba(255,255,255,0.97);
+      transform: translateY(-50%) scale(1.08);
+    }
+    .carousel-btn.prev { left: 16px; }
+    .carousel-btn.next { right: 16px; }
+
+    .carousel-dots {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+    .dot.active {
+      background: #fff;
+      transform: scale(1.35);
+    }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 36px 20px 60px;
+    }
+
+    /* ── UPLOAD CARD ── */
+    /* Inspired by the clipboard card stack from the PowerPoint */
+    .upload-card {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 32px 28px;
+      text-align: center;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 32px;
+      border: 2px dashed var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Stacked card effect behind the main card */
+    .upload-card::before,
+    .upload-card::after {
+      content: '';
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      height: 100%;
+      border-radius: 20px;
+      background: var(--bg-secondary);
+      z-index: -1;
+    }
+    .upload-card::before {
+      top: -6px;
+      opacity: 0.6;
+      transform: rotate(-1.5deg);
+    }
+    .upload-card::after {
+      top: -12px;
+      opacity: 0.35;
+      transform: rotate(1.5deg);
+    }
+
+    .upload-card h3 {
+      color: var(--primary);
+      margin-bottom: 8px;
+      font-size: 1.3rem;
+    }
+
+    .upload-card p {
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+
+    .folder-select {
+      display: block;
+      width: 100%;
+      max-width: 340px;
+      margin: 0 auto 16px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 2px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: 1rem;
+      font-family: 'Georgia', serif;
+    }
+
+    .file-input-label {
+      display: inline-block;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      padding: 10px 26px;
+      border-radius: 26px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s, transform 0.15s;
+      margin-bottom: 8px;
+    }
+    .file-input-label:hover {
+      background: var(--btn-hover);
+      transform: scale(1.03);
+    }
+
+    #photo-input { display: none; }
+
+    #selected-file-name {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin: 6px 0 10px;
+      min-height: 20px;
+    }
+
+    .upload-btn {
+      display: inline-block;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      padding: 10px 30px;
+      border-radius: 26px;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      font-family: 'Georgia', serif;
+    }
+    .upload-btn:hover {
+      background: var(--btn-hover);
+      transform: scale(1.03);
+    }
+
+    #upload-status {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      min-height: 22px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 22px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .nav-logo { font-size: 1.1rem; }
+      .carousel-track, .carousel-slide { height: 260px; }
+      .dating-banner { font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════
+       NAV
+  ════════════════════════════════ -->
+  <nav>
+    <a class="nav-logo" href="index.html">
+      <div class="house-icon">🏠</div>
+      Abbie + Ben
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="games.html">Games</a></li>
+      <li><a href="names.html">Names</a></li>
+      <li><a href="calendar.html">Calendar</a></li>
+      <li><a href="inspo.html">Inspo Pics</a></li>
+    </ul>
+    <div class="theme-toggle-wrapper">
+      <label class="theme-toggle" title="Switch theme">
+        <input type="checkbox" id="theme-checkbox" />
+        <span class="track"></span>
+        <span class="knob"></span>
+      </label>
+    </div>
+  </nav>
+
+  <!-- ════════════════════════════════
+       DAYS DATING BANNER
+  ════════════════════════════════ -->
+  <div class="dating-banner">
+    💕 Abbie &amp; Ben have been together for
+    <span class="counter-pill" id="days-count">...</span> days
+    <span class="counter-pill" id="hours-count">...</span> hours
+    <span class="counter-pill" id="minutes-count">...</span> minutes 💕
+  </div>
+
+  <!-- ════════════════════════════════
+       IMAGE CAROUSEL
+  ════════════════════════════════ -->
+  <section class="carousel-section">
+    <div class="carousel-track" id="carousel-track">
+      <div class="carousel-slide">
+        <div class="carousel-placeholder">
+          <span class="big-icon">📸</span>
+          <span>Loading photos from Supabase...</span>
+        </div>
+      </div>
+    </div>
+    <button class="carousel-btn prev" onclick="moveCarousel(-1)">&#8592;</button>
+    <button class="carousel-btn next" onclick="moveCarousel(1)">&#8594;</button>
+    <div class="carousel-dots" id="carousel-dots"></div>
+  </section>
+
+  <!-- ════════════════════════════════
+       MAIN
+  ════════════════════════════════ -->
+  <main>
+
+    <!-- Upload Card -->
+    <div class="upload-card">
+      <h3>📱 Add a Photo</h3>
+      <p>Upload a picture from your phone straight to Supabase storage.</p>
+
+      <select class="folder-select" id="folder-select">
+        <option value="">— Select a folder —</option>
+        <option value="homepage">🏠 Homepage</option>
+        <option value="inspo-pics/aesthetic">✨ Inspo: Aesthetic</option>
+        <option value="inspo-pics/date-ideas">💕 Inspo: Date Ideas</option>
+        <option value="inspo-pics/travel">✈️ Inspo: Travel</option>
+        <option value="inspo-pics/food">🍕 Inspo: Food</option>
+        <option value="inspo-pics/other">📁 Inspo: Other</option>
+      </select>
+
+      <label class="file-input-label" for="photo-input">📷 Choose Photo</label>
+      <input type="file" id="photo-input" accept="image/*" capture="environment" onchange="showFileName(this)" />
+      <div id="selected-file-name"></div>
+      <button class="upload-btn" onclick="uploadPhoto()">⬆️ Upload</button>
+      <div id="upload-status"></div>
+    </div>
+
+  </main>
+
+  <footer>Made with 💕 for Abbie + Ben</footer>
+
+  <!-- ════════════════════════════════
+       SCRIPTS
+  ════════════════════════════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <script>
+    // ╔══════════════════════════════════════════════════════╗
+    // ║  ⚙️  CONFIG — fill these in!                        ║
+    // ╠══════════════════════════════════════════════════════╣
+    const SUPABASE_URL      = 'YOUR_SUPABASE_URL';       // https://xxxx.supabase.co
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';  // your public anon key
+    const BUCKET_NAME       = 'YOUR_BUCKET_NAME';        // e.g. 'photos'
+    const ORIGIN_DATE       = new Date('2026-03-24T11:30:00'); // 3/24/26 11:30am
+    // ╚══════════════════════════════════════════════════════╝
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ── THEME ────────────────────────────────────────────────
+    const checkbox = document.getElementById('theme-checkbox');
+    const root = document.documentElement;
+    const saved = localStorage.getItem('abbiebenTheme') || 'light';
+    if (saved === 'dark') { root.setAttribute('data-theme','dark'); checkbox.checked = true; }
+
+    checkbox.addEventListener('change', () => {
+      if (checkbox.checked) {
+        root.setAttribute('data-theme','dark');
+        localStorage.setItem('abbiebenTheme','dark');
+      } else {
+        root.removeAttribute('data-theme');
+        localStorage.setItem('abbiebenTheme','light');
+      }
+    });
+
+    // ── COUNTER ──────────────────────────────────────────────
+    function updateCounter() {
+      const diff = Date.now() - ORIGIN_DATE.getTime();
+      if (diff < 0) return;
+      const days  = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins  = Math.floor((diff % 3600000)  / 60000);
+      document.getElementById('days-count').textContent    = days.toLocaleString();
+      document.getElementById('hours-count').textContent   = hours;
+      document.getElementById('minutes-count').textContent = mins;
+    }
+    updateCounter();
+    setInterval(updateCounter, 60000);
+
+    // ── CAROUSEL ─────────────────────────────────────────────
+    let cur = 0, total = 0, autoTimer = null;
+
+    function shuffle(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    async function loadCarousel() {
+      try {
+        const { data, error } = await sb.storage.from(BUCKET_NAME).list('homepage', { limit: 100 });
+        if (error) throw error;
+
+        const imgs = shuffle(data.filter(f => /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name)));
+        total = imgs.length;
+
+        const track = document.getElementById('carousel-track');
+        const dots  = document.getElementById('carousel-dots');
+        track.innerHTML = '';
+        dots.innerHTML  = '';
+
+        if (total === 0) {
+          track.innerHTML = '<div class="carousel-slide"><div class="carousel-placeholder"><span class="big-icon">🖼️</span><span>No images in the homepage folder yet</span></div></div>';
+          return;
+        }
+
+        imgs.forEach((f, i) => {
+          const { data: u } = sb.storage.from(BUCKET_NAME).getPublicUrl('homepage/' + f.name);
+          const slide = document.createElement('div');
+          slide.className = 'carousel-slide';
+          const img = document.createElement('img');
+          img.src = u.publicUrl; img.alt = f.name; img.loading = 'lazy';
+          slide.appendChild(img);
+          track.appendChild(slide);
+
+          const dot = document.createElement('div');
+          dot.className = 'dot' + (i === 0 ? ' active' : '');
+          dot.onclick = () => goTo(i);
+          dots.appendChild(dot);
+        });
+
+        if (autoTimer) clearInterval(autoTimer);
+        autoTimer = setInterval(() => moveCarousel(1), 5000);
+      } catch(e) {
+        console.error(e);
+        document.getElementById('carousel-track').innerHTML =
+          '<div class="carousel-slide"><div class="carousel-placeholder"><span class="big-icon">⚠️</span><span>Could not load images — check your Supabase config</span></div></div>';
+      }
+    }
+
+    function goTo(i) {
+      cur = (i + total) % total;
+      document.getElementById('carousel-track').style.transform = `translateX(-${cur * 100}%)`;
+      document.querySelectorAll('.dot').forEach((d,j) => d.classList.toggle('active', j === cur));
+    }
+
+    function moveCarousel(dir) { if (total) goTo(cur + dir); }
+
+    loadCarousel();
+
+    // ── UPLOAD ───────────────────────────────────────────────
+    function showFileName(input) {
+      document.getElementById('selected-file-name').textContent =
+        input.files[0] ? '📎 ' + input.files[0].name : '';
+    }
+
+    async function uploadPhoto() {
+      const file   = document.getElementById('photo-input').files[0];
+      const folder = document.getElementById('folder-select').value;
+      const status = document.getElementById('upload-status');
+
+      if (!file)   { status.textContent = '⚠️ Please choose a photo first.'; return; }
+      if (!folder) { status.textContent = '⚠️ Please select a folder.'; return; }
+
+      status.textContent = '⏳ Uploading...';
+      const { error } = await sb.storage.from(BUCKET_NAME)
+        .upload(`${folder}/${Date.now()}_${file.name}`, file, { upsert: false });
+
+      if (error) {
+        status.textContent = '❌ Upload failed: ' + error.message;
+      } else {
+        status.textContent = '✅ Uploaded!';
+        document.getElementById('photo-input').value = '';
+        document.getElementById('selected-file-name').textContent = '';
+        document.getElementById('folder-select').value = '';
+        if (folder === 'homepage') loadCarousel();
+      }
+    }
+  </script>
+
+</body>
+</html>

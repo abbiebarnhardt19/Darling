@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Abbie + Ben 💕</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- NAV BAR -->
+  <nav>
+    <a class="nav-logo" href="index.html">
+      <span class="nav-title">Abbie + Ben</span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="games.html">Games</a></li>
+      <li><a href="names.html">Names</a></li>
+      <li><a href="calendar.html">Calendar</a></li>
+      <li><a href="inspo.html">Inspo Pics</a></li>
+    </ul>
+
+    <div class="theme-toggle-wrapper">
+      <label class="theme-toggle">
+        <input type="checkbox" id="theme-checkbox" />
+        <span class="track"></span>
+        <span class="knob"></span>
+      </label>
+    </div>
+  </nav>
+
+  <!-- DAYS DATING BANNER -->
+  <div class="dating-banner">
+    Abbie &amp; Ben have been together for
+    <span class="counter-pill" id="days-count">0</span> days,
+    <span class="counter-pill" id="hours-count">0</span> hours, and
+    <span class="counter-pill" id="minutes-count">0</span> minutes
+  </div>
+
+  <!-- CAROUSEL -->
+  <section class="carousel-section">
+    <div class="carousel-track" id="carousel-track">
+      <div class="carousel-slide">
+        <div class="carousel-placeholder">
+          <span>Loading photos from Supabase...</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="carousel-btn prev" onclick="moveCarousel(-1)">&#8592;</button>
+    <button class="carousel-btn next" onclick="moveCarousel(1)">&#8594;</button>
+
+    <div class="carousel-dots" id="carousel-dots"></div>
+  </section>
+
+  <!-- MAIN UPLOAD -->
+  <!-- <main>
+    <div class="clipboard-stack">
+      <div class="upload-card">
+        <h3>Add a Photo</h3>
+
+        <select class="folder-select" id="folder-select">
+          <option value="">Select folder</option>
+
+          <option value="homepage">Homepage</option>
+
+          <option value="rings">Rings</option>
+          <option value="home">Home</option>
+          <option value="wedding">Wedding</option>
+          <option value="pets">Pets</option>
+          <option value="other">Other</option>
+        </select>
+
+        <label for="photo-input">
+          <div class="upload-btn">Select Image</div>
+        </label>
+
+        <input type="file" id="photo-input" accept="image/*" capture="environment" onchange="showFileName(this)" />
+
+        <div id="selected-file-name"></div>
+
+        <button class="upload-btn" onclick="uploadPhoto()">Upload Photo</button>
+
+        <div id="upload-status"></div>
+      </div>
+    </div>
+  </main> -->
+  <main class="upload-section">
+  <div class="clipboard-stack">
+    <div class="upload-card">
+
+      <h3>Add a Photo</h3>
+
+      <!-- FOLDER SELECT -->
+      <div class="form-group">
+        <label for="folder-select">Choose folder</label>
+        <select class="input folder-select" id="folder-select">
+          <option value="">Select folder</option>
+          <option value="homepage">Homepage</option>
+          <option value="rings">Rings</option>
+          <option value="home">Home</option>
+          <option value="wedding">Wedding</option>
+          <option value="pets">Pets</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <!-- FILE PICKER -->
+      <div class="form-group">
+        <label>Pick an image</label>
+
+        <label for="photo-input" class="file-drop">
+          <span>Click to select a photo</span>
+        </label>
+
+        <input
+          type="file"
+          id="photo-input"
+          accept="image/*"
+          capture="environment"
+          onchange="showFileName(this)"
+        />
+
+        <div id="selected-file-name" class="file-name"></div>
+      </div>
+
+      <!-- BUTTON -->
+      <button class="primary-btn upload-btn" onclick="uploadPhoto()">
+        Upload Photo
+      </button>
+
+      <div id="upload-status" class="status-text"></div>
+
+    </div>
+
+
+  </div>
+</main>
+
+<!-- ===== SUPABASE ===== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+
+<script>
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const BUCKET = "Homepage";
+
+let slides = [];
+let cur = 0;
+
+// =====================
+// LOAD IMAGES
+// =====================
+async function loadCarousel() {
+
+  const { data, error } = await sb.storage
+    .from(BUCKET)
+    .list("", { limit: 100 });
+
+
+  if (error) return;
+
+  const images = data
+    .filter(f => /\.(jpg|jpeg|png|webp|gif)$/i.test(f.name))
+    .map(f => f.name);
+
+
+  slides = [];
+
+  for (let i = 0; i < images.length; i += 3) {
+    slides.push(images.slice(i, i + 3));
+  }
+
+  render();
+}
+
+// =====================
+// RENDER CAROUSEL
+// =====================
+function render() {
+  const track = document.getElementById("carousel-track");
+  const dots = document.getElementById("carousel-dots");
+
+  track.innerHTML = "";
+  dots.innerHTML = "";
+
+  if (!slides.length) {
+    track.innerHTML = "<div class='slide'>No images found</div>";
+    return;
+  }
+
+  slides.forEach((group, i) => {
+    const slide = document.createElement("div");
+    slide.className = "slide";
+
+    group.forEach(file => {
+      const url = sb.storage
+        .from(BUCKET)
+        .getPublicUrl(file).data.publicUrl;
+
+
+      const img = document.createElement("img");
+      img.src = url;
+      img.loading = "lazy";
+
+      slide.appendChild(img);
+    });
+
+    track.appendChild(slide);
+
+    const dot = document.createElement("div");
+    dot.className = "dot" + (i === 0 ? " active" : "");
+    dot.onclick = () => goTo(i);
+    dots.appendChild(dot);
+  });
+
+  goTo(0);
+}
+
+// =====================
+// CAROUSEL CONTROL
+// =====================
+function goTo(i) {
+  cur = (i + slides.length) % slides.length;
+
+  document.getElementById("carousel-track").style.transform =
+    `translateX(-${cur * 100}%)`;
+
+  document.querySelectorAll(".dot").forEach((d, idx) =>
+    d.classList.toggle("active", idx === cur)
+  );
+}
+
+function moveCarousel(dir) {
+  goTo(cur + dir);
+}
+
+// =====================
+// UPLOAD
+// =====================
+async function uploadPhoto() {
+  const file = document.getElementById('photo-input').files[0];
+  const folder = document.getElementById('folder-select').value;
+  const status = document.getElementById('upload-status');
+
+  if (!file) {
+    status.textContent = "Pick a file";
+    return;
+  }
+
+  if (!folder) {
+    status.textContent = "Pick a folder";
+    return;
+  }
+
+  status.textContent = "Uploading...";
+
+  let bucket;
+  let path;
+
+  // ─────────────────────────────
+  // ROUTE TO CORRECT BUCKET
+  // ─────────────────────────────
+  if (folder === "homepage") {
+    bucket = "Homepage";
+    path = `${Date.now()}_${file.name}`;
+  } else {
+    bucket = "Inspo Pics";
+
+    // normalize folder name (Rings, Home, Pets, etc.)
+    const cleanFolder =
+      folder.charAt(0).toUpperCase() + folder.slice(1);
+
+    path = `${cleanFolder}/${Date.now()}_${file.name}`;
+  }
+
+  const { data, error } = await sb.storage
+    .from(bucket)
+    .upload(path, file, { upsert: false });
+
+
+  if (error) {
+    status.textContent = error.message;
+    return;
+  }
+
+  status.textContent = "Uploaded!";
+  loadCarousel();
+}
+
+// =====================
+loadCarousel();
+
+// =====================
+// DATING COUNTER
+// =====================
+const ORIGIN_DATE = new Date(2026, 2, 24, 11, 30, 0);
+
+function updateCounter() {
+  const now = new Date();
+  const diff = now - ORIGIN_DATE;
+
+  if (diff < 0) return;
+
+  const totalMinutes = Math.floor(diff / 60000);
+  const totalHours = Math.floor(totalMinutes / 60);
+  const totalDays = Math.floor(totalHours / 24);
+
+  const remHours = totalHours % 24;
+  const remMinutes = totalMinutes % 60;
+
+  const daysEl = document.getElementById("days-count");
+  const hoursEl = document.getElementById("hours-count");
+  const minutesEl = document.getElementById("minutes-count");
+
+  if (!daysEl || !hoursEl || !minutesEl) {
+    console.log("❌ Counter elements missing");
+    return;
+  }
+
+  daysEl.textContent = totalDays;
+  hoursEl.textContent = remHours;
+  minutesEl.textContent = remMinutes;
+}
+
+// run it immediately + keep updating
+updateCounter();
+setInterval(updateCounter, 1000);
+
+const checkbox = document.getElementById("theme-checkbox");
+const root = document.documentElement;
+
+// load saved theme
+const savedTheme = localStorage.getItem("abbiebenTheme") || "light";
+
+if (savedTheme === "dark") {
+  root.setAttribute("data-theme", "dark");
+  checkbox.checked = true;
+}
+
+// toggle theme
+checkbox.addEventListener("change", () => {
+  if (checkbox.checked) {
+    root.setAttribute("data-theme", "dark");
+    localStorage.setItem("abbiebenTheme", "dark");
+  } else {
+    root.setAttribute("data-theme", "light");
+    localStorage.setItem("abbiebenTheme", "light");
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,3 @@
+const SUPABASE_URL = "https://odgwmcvzwtjxryvrvcbh.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9kZ3dtY3Z6d3RqeHJ5dnJ2Y2JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNjUzNTgsImV4cCI6MjA5NzY0MTM1OH0.WLOxQ1gqhMfzNEl-jIxD8-G03Q25l_fOkdm459ZhGGQ";
+const BUCKET_NAME = "Homepage";
