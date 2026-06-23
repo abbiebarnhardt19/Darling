@@ -185,11 +185,9 @@ let cur = 0;
 // LOAD IMAGES
 // =====================
 async function loadCarousel() {
-
   const { data, error } = await sb.storage
     .from(BUCKET)
     .list("", { limit: 100 });
-
 
   if (error) return;
 
@@ -197,15 +195,26 @@ async function loadCarousel() {
     .filter(f => /\.(jpg|jpeg|png|webp|gif)$/i.test(f.name))
     .map(f => f.name);
 
+  const isMobile = window.innerWidth <= 680;
+  const groupSize = isMobile ? 1 : 3;   // ← key line
 
   slides = [];
-
-  for (let i = 0; i < images.length; i += 3) {
-    slides.push(images.slice(i, i + 3));
+  for (let i = 0; i < images.length; i += groupSize) {
+    slides.push(images.slice(i, i + groupSize));
   }
 
   render();
 }
+
+// Re-render if screen is resized across the breakpoint
+let lastMobile = window.innerWidth <= 680;
+window.addEventListener('resize', () => {
+  const nowMobile = window.innerWidth <= 680;
+  if (nowMobile !== lastMobile) {
+    lastMobile = nowMobile;
+    loadCarousel();   // rebuild slides for new screen size
+  }
+});
 
 // =====================
 // RENDER CAROUSEL

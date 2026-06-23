@@ -261,9 +261,42 @@
 /* ══════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════ */
-@media (max-width: 680px) {
+/* @media (max-width: 680px) {
   .slide { grid-template-columns: 1fr; }
   .slide img { height: 240px; }
   .dating-banner { font-size: 0.82rem; gap: 6px; }
   .counter-pill { font-size: 0.95rem; padding: 3px 10px; }
+} */
+
+@media (max-width: 680px) {
+  /* 1. Allow the carousel to grow to fit all 3 stacked images */
+  .carousel-track, 
+  .carousel-slide {
+    height: auto !important; 
+    min-height: 500px;
+  }
+
+  .slide {
+    grid-template-columns: 1fr; /* Keep them stacked */
+    gap: 20px;
+    padding: 20px 10px;
+  }
+
+  /* 2. Fix the "weird cropping" for vertical photos */
+  .slide img {
+    width: 100%;
+    height: auto;
+    /* Use an aspect ratio that favors vertical (portrait) photos */
+    aspect-ratio: 4 / 5; 
+    object-fit: cover;
+    object-position: center; /* Keeps the center of the photo visible */
+    border-radius: 15px;
+  }
+
+  /* 3. Adjust buttons so they stay centered on the taller carousel */
+  .carousel-btn {
+    top: 40%; 
+    width: 40px;
+    height: 40px;
+  }
 }
