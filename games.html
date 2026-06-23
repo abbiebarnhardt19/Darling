@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Games – Abbie + Ben</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="CSS/themes.css" />
+  <link rel="stylesheet" href="CSS/general app styles.css" />
+  <link rel="stylesheet" href="CSS/games.css" />
+
+</head>
+
+<body>
+
+  <!-- NAV BAR -->
+  <nav>
+    <a class="nav-logo" href="index.html">
+      <span class="nav-title">Abbie + Ben</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="games.html" class="active">Games</a></li>
+      <li><a href="names.html">Names</a></li>
+      <li><a href="calendar.html">Calendar</a></li>
+      <li><a href="inspo.html">Inspo Pics</a></li>
+    </ul>
+    <div class="theme-toggle-wrapper">
+      <label class="theme-toggle">
+        <input type="checkbox" id="theme-checkbox" />
+        <span class="track"></span>
+        <span class="knob"></span>
+      </label>
+    </div>
+  </nav>
+
+  <!-- OVERALL SCOREBOARD -->
+  <div class="scoreboard">
+    <h1>Overall Score</h1>
+    <div class="score-banner">
+      <span class="score-name">Abbie</span>
+      <span class="score-total" id="abbie-total">–</span>
+      <span class="score-divider">vs</span>
+      <span class="score-total" id="ben-total">–</span>
+      <span class="score-name">Ben</span>
+    </div>
+  </div>
+
+  <!-- GAME CARDS -->
+  <section class="games-section">
+    <h2>Game Breakdown</h2>
+    <div class="games-grid" id="games-grid">
+      <div class="state-msg">Loading games...</div>
+    </div>
+  </section>
+
+  <!-- CONFIRM DELETE MODAL -->
+  <div class="confirm-overlay" id="confirm-overlay">
+    <div class="confirm-box">
+      <p>Delete <strong id="confirm-game-name"></strong>?</p>
+      <p style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">This can't be undone.</p>
+      <div class="confirm-actions">
+        <button class="confirm-no"  onclick="closeConfirm()">Cancel</button>
+        <button class="confirm-yes" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+
+  <script>
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ── THEME ──
+    const checkbox = document.getElementById("theme-checkbox");
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem("abbiebenTheme") || "light";
+    if (savedTheme === "dark") {
+      root.setAttribute("data-theme", "dark");
+      checkbox.checked = true;
+    }
+    checkbox.addEventListener("change", () => {
+      const theme = checkbox.checked ? "dark" : "light";
+      root.setAttribute("data-theme", theme);
+      localStorage.setItem("abbiebenTheme", theme);
+    });
+
+    // ── TOAST ──
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2200);
+    }
+
+    // ── STATE ──
+    let gamesCache = [];
+    let pendingDeleteId = null;
+
+    // ── LOAD GAMES ──
+    async function loadGames() {
+      const grid = document.getElementById("games-grid");
+
+      try {
+        const { data, error } = await sb
+          .from("Games")
+          .select("*")
+          .order("id", { ascending: true });
+
+        if (error) throw error;
+
+        gamesCache = data || [];
+        renderAll(gamesCache);
+
+      } catch (err) {
+        console.error("Supabase error:", err);
+        grid.innerHTML = `<div class="state-msg">Couldn't load games 😢<br><small>${err.message}</small></div>`;
+      }
+    }
+
+    // ── RENDER ALL ──
+    function renderAll(data) {
+      const grid = document.getElementById("games-grid");
+      grid.innerHTML = "";
+
+      let abbieTotal = 0;
+      let benTotal   = 0;
+
+      data.forEach(game => {
+        abbieTotal += Number(game["Abbie Wins"]) || 0;
+        benTotal   += Number(game["Ben Wins"])   || 0;
+        grid.appendChild(buildCard(game));
+      });
+
+      // Always append the Add Game card last
+      grid.appendChild(buildAddCard());
+
+      document.getElementById("abbie-total").textContent = abbieTotal;
+      document.getElementById("ben-total").textContent   = benTotal;
+    }
+
+    // ── BUILD GAME CARD ──
+    function buildCard(game) {
+      const card = document.createElement("div");
+      card.className = "game-card";
+      card.id = `game-${game.id}`;
+
+      const abbieWins = Number(game["Abbie Wins"]) || 0;
+      const benWins   = Number(game["Ben Wins"])   || 0;
+      const gameName  = game["Game Name"] || "Unnamed Game";
+
+      card.innerHTML = `
+        <button class="delete-btn" onclick="promptDelete(${game.id})" title="Delete game">✕</button>
+        <div class="game-name">${gameName}</div>
+        <div class="game-scores">
+
+          <div class="player-block">
+            <span class="player-label">Abbie</span>
+            <span class="score-display" id="abbie-${game.id}">${abbieWins}</span>
+            <div class="score-controls">
+              <button class="ctrl-btn" onclick="updateScore(${game.id}, 'Abbie Wins', -1)">−</button>
+              <button class="ctrl-btn" onclick="updateScore(${game.id}, 'Abbie Wins', +1)">+</button>
+            </div>
+          </div>
+
+          <span class="vs-badge">vs</span>
+
+          <div class="player-block">
+            <span class="player-label">Ben</span>
+            <span class="score-display" id="ben-${game.id}">${benWins}</span>
+            <div class="score-controls">
+              <button class="ctrl-btn" onclick="updateScore(${game.id}, 'Ben Wins', -1)">−</button>
+              <button class="ctrl-btn" onclick="updateScore(${game.id}, 'Ben Wins', +1)">+</button>
+            </div>
+          </div>
+
+        </div>
+      `;
+
+      return card;
+    }
+
+    // ── BUILD ADD GAME CARD ──
+    function buildAddCard() {
+      const card = document.createElement("div");
+      card.className = "add-game-card";
+      card.id = "add-game-card";
+
+      card.innerHTML = `
+        <h3>+ Add a Game</h3>
+        <input
+          class="add-game-input"
+          id="new-game-name"
+          type="text"
+          placeholder="Game name..."
+          maxlength="40"
+        />
+        <button class="add-btn" onclick="addGame()">Add Game</button>
+      `;
+
+      return card;
+    }
+
+    // ── ADD GAME ──
+    async function addGame() {
+      const input = document.getElementById("new-game-name");
+      const name  = input.value.trim();
+
+      if (!name) {
+        showToast("Enter a game name first!");
+        input.focus();
+        return;
+      }
+
+      try {
+        const { data, error } = await sb
+          .from("Games")
+          .insert([{ "Game Name": name, "Abbie Wins": 0, "Ben Wins": 0 }])
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        gamesCache.push(data);
+        input.value = "";
+        renderAll(gamesCache);
+        showToast(`🎮 ${name} added!`);
+
+      } catch (err) {
+        console.error("Insert error:", err);
+        showToast("❌ Couldn't add game — try again");
+      }
+    }
+
+    // Allow Enter key to submit
+    document.addEventListener("keydown", e => {
+      if (e.key === "Enter" && document.activeElement.id === "new-game-name") {
+        addGame();
+      }
+    });
+
+    // ── UPDATE SCORE ──
+    async function updateScore(id, column, delta) {
+      const game = gamesCache.find(g => g.id === id);
+      if (!game) return;
+
+      const current  = Number(game[column]) || 0;
+      const newValue = Math.max(0, current + delta);
+
+      // Optimistic UI
+      game[column] = newValue;
+      const elId = column === "Abbie Wins" ? `abbie-${id}` : `ben-${id}`;
+      document.getElementById(elId).textContent = newValue;
+      recalcTotals();
+
+      try {
+        const { error } = await sb
+          .from("Games")
+          .update({ [column]: newValue })
+          .eq("id", id);
+
+        if (error) throw error;
+
+        showToast(`✅ ${game["Game Name"]} updated!`);
+
+      } catch (err) {
+        // Roll back
+        game[column] = current;
+        document.getElementById(elId).textContent = current;
+        recalcTotals();
+        showToast("❌ Couldn't save — try again");
+        console.error("Update error:", err);
+      }
+    }
+
+    // ── RECALC TOTALS ──
+    function recalcTotals() {
+      let abbieTotal = 0;
+      let benTotal   = 0;
+      gamesCache.forEach(g => {
+        abbieTotal += Number(g["Abbie Wins"]) || 0;
+        benTotal   += Number(g["Ben Wins"])   || 0;
+      });
+      document.getElementById("abbie-total").textContent = abbieTotal;
+      document.getElementById("ben-total").textContent   = benTotal;
+    }
+
+    // ── DELETE FLOW ──
+    function promptDelete(id) {
+      const game = gamesCache.find(g => g.id === id);
+      if (!game) return;
+      pendingDeleteId = id;
+      document.getElementById("confirm-game-name").textContent = game["Game Name"] || "this game";
+      document.getElementById("confirm-overlay").classList.add("open");
+    }
+
+    function closeConfirm() {
+      pendingDeleteId = null;
+      document.getElementById("confirm-overlay").classList.remove("open");
+    }
+
+    async function confirmDelete() {
+      const id   = pendingDeleteId;
+      const game = gamesCache.find(g => g.id === id);
+      closeConfirm();
+
+      try {
+        const { error } = await sb
+          .from("Games")
+          .delete()
+          .eq("id", id);
+
+        if (error) throw error;
+
+        gamesCache = gamesCache.filter(g => g.id !== id);
+        renderAll(gamesCache);
+        showToast(`🗑️ ${game["Game Name"]} deleted`);
+
+      } catch (err) {
+        console.error("Delete error:", err);
+        showToast("❌ Couldn't delete — try again");
+      }
+    }
+
+    // Close confirm on overlay click
+    document.getElementById("confirm-overlay").addEventListener("click", e => {
+      if (e.target === e.currentTarget) closeConfirm();
+    });
+
+    // ── INIT ──
+    loadGames();
+  </script>
+
+</body>
+</html>

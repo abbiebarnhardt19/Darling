@@ -1,0 +1,369 @@
+/* ══════════════════════════════════════
+       OVERALL SCOREBOARD
+    ══════════════════════════════════════ */
+    .scoreboard {
+      text-align: center;
+      padding: 2.5rem 1rem 1.5rem;
+    }
+
+    .scoreboard h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 1.4rem;
+      color: var(--banner-text);
+      margin-bottom: 1rem;
+    }
+
+    .score-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.2rem;
+      background: var(--surface);
+      border-radius: 60px;
+      padding: 0.75rem 2rem;
+      box-shadow: var(--card-shadow);
+    }
+
+    .score-name {
+      font-family: 'Pacifico', cursive;
+      font-size: 1.1rem;
+      color: var(--primary);
+    }
+
+    .score-total {
+      font-family: 'Nunito', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--text);
+      min-width: 48px;
+      text-align: center;
+    }
+
+    .score-divider {
+      font-family: 'Pacifico', cursive;
+      font-size: 1.4rem;
+      color: var(--text-muted);
+    }
+
+    /* ══════════════════════════════════════
+       GAMES SECTION
+    ══════════════════════════════════════ */
+    .games-section {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 4rem;
+    }
+
+    .games-section h2 {
+      font-family: 'Pacifico', cursive;
+      font-size: 1.3rem;
+      color: var(--banner-text);
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ══════════════════════════════════════
+       GAME CARD
+    ══════════════════════════════════════ */
+    .game-card {
+      background: var(--surface);
+      border-radius: 20px;
+      box-shadow: var(--card-shadow);
+      padding: 1.25rem 1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      transition: transform 0.2s;
+      position: relative;
+    }
+
+    .game-card:hover { transform: translateY(-3px); }
+
+    .game-name {
+      font-family: 'Pacifico', cursive;
+      font-size: 1.05rem;
+      color: var(--primary);
+      text-align: center;
+    }
+
+    .game-scores {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      width: 100%;
+    }
+
+    .player-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      flex: 1;
+    }
+
+    .player-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .score-display {
+      font-family: 'Nunito', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text);
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .score-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .ctrl-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--input-bg);
+      color: var(--primary);
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: background 0.15s, transform 0.15s;
+    }
+
+    .ctrl-btn:hover {
+      background: var(--primary);
+      color: var(--btn-text);
+      transform: scale(1.1);
+    }
+
+    .vs-badge {
+      font-family: 'Pacifico', cursive;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* ── DELETE BUTTON ── */
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+      line-height: 1;
+    }
+
+    .delete-btn:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* ══════════════════════════════════════
+       ADD GAME CARD
+    ══════════════════════════════════════ */
+    .add-game-card {
+      background: var(--surface);
+      border-radius: 20px;
+      box-shadow: var(--card-shadow);
+      padding: 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      border: 2px dashed var(--border);
+    }
+
+    .add-game-card h3 {
+      font-family: 'Pacifico', cursive;
+      font-size: 1.05rem;
+      color: var(--primary);
+      margin: 0;
+    }
+
+    .add-game-input {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 2px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+      text-align: center;
+    }
+
+    .add-game-input:focus {
+      border-color: var(--primary);
+    }
+
+    .add-game-input::placeholder {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .add-btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: 28px;
+      border: none;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .add-btn:hover {
+      background: var(--btn-hover);
+      transform: translateY(-2px);
+    }
+
+    /* ══════════════════════════════════════
+       CONFIRM DELETE MODAL
+    ══════════════════════════════════════ */
+    .confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .confirm-overlay.open {
+      display: flex;
+    }
+
+    .confirm-box {
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      max-width: 320px;
+      width: 90%;
+      text-align: center;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .confirm-box p {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .confirm-box strong {
+      color: var(--primary);
+      font-family: 'Pacifico', cursive;
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+    }
+
+    .confirm-yes {
+      padding: 9px 22px;
+      border-radius: 22px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .confirm-yes:hover { background: var(--btn-hover); }
+
+    .confirm-no {
+      padding: 9px 22px;
+      border-radius: 22px;
+      border: 2px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .confirm-no:hover { background: var(--input-bg); }
+
+    /* ══════════════════════════════════════
+       STATES & TOAST
+    ══════════════════════════════════════ */
+    .state-msg {
+      text-align: center;
+      font-family: 'Nunito', sans-serif;
+      color: var(--banner-text);
+      padding: 2rem;
+      grid-column: 1 / -1;
+      font-weight: 700;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface);
+      color: var(--text);
+      border-left: 4px solid var(--primary);
+      border-radius: 12px;
+      padding: 0.65rem 1.2rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: var(--card-shadow);
+      z-index: 999;
+      transition: transform 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 500px) {
+      .score-banner { gap: 0.75rem; padding: 0.6rem 1.2rem; }
+      .score-total  { font-size: 2.2rem; }
+      .games-grid   { grid-template-columns: 1fr; }
+    }
