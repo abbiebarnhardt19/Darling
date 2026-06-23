@@ -58,7 +58,7 @@
 
 .slide img {
   width: 100%;
-  height: 420px;
+  height: 100%;
   object-fit: cover;
   border-radius: 12px;
 }
@@ -261,12 +261,7 @@
 /* ══════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════ */
-/* @media (max-width: 680px) {
-  .slide { grid-template-columns: 1fr; }
-  .slide img { height: 240px; }
-  .dating-banner { font-size: 0.82rem; gap: 6px; }
-  .counter-pill { font-size: 0.95rem; padding: 3px 10px; }
-} */
+
 @media (max-width: 680px) {
   .nav-links     { display: none; }
   .nav-title     { font-size: 1.1rem; }
