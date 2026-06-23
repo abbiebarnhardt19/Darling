@@ -9,24 +9,35 @@
   <link rel="stylesheet" href="CSS/themes.css" />
   <link rel="stylesheet" href="CSS/inspo styles.css" />
   <link rel="stylesheet" href="CSS/general app styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
-
-</head>
+<div class="qr-modal-overlay" id="qr-modal">
+  <div class="qr-modal-box">
+    <button class="qr-modal-close" id="qr-close">✕</button>
+    <p class="qr-modal-title">Open on your phone</p>
+    <p class="qr-modal-subtitle">Scan with your camera to open this page on any device.</p>
+    <canvas id="qr-canvas"></canvas>
+    <p class="qr-url-text" id="qr-url-text"></p>
+  </div>
+</div>
 
 <body>
-
-  <!-- NAV BAR -->
   <nav>
-    <a class="nav-logo" href="index.html">
-      <span class="nav-title">Abbie + Ben</span>
-    </a>
-    <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="games.html">Games</a></li>
-      <li><a href="names.html">Names</a></li>
-      <li><a href="calendar.html">Calendar</a></li>
-      <li><a href="inspo.html" class="active">Inspo Pics</a></li>
-    </ul>
+  <a class="nav-logo" href="index.html">
+    <span class="nav-title">Abbie + Ben</span>
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="games.html">Games</a></li>
+    <li><a href="names.html">Names</a></li>
+    <li><a href="calendar.html">Calendar</a></li>
+    <li><a href="inspo.html">Inspo Pics</a></li>
+  </ul>
+
+  <div class="nav-right">
+    <button class="nav-qr-btn" id="qr-btn" title="Open on your phone">📱</button>
+
     <div class="theme-toggle-wrapper">
       <label class="theme-toggle">
         <input type="checkbox" id="theme-checkbox" />
@@ -34,7 +45,24 @@
         <span class="knob"></span>
       </label>
     </div>
-  </nav>
+
+    <button class="nav-waffle" id="waffle-btn" aria-label="Open menu">
+      <span class="waffle-icon">
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+      </span>
+    </button>
+  </div>
+</nav>
+
+<nav class="nav-drawer" id="nav-drawer">
+  <a href="index.html" class="active">Home</a>
+  <a href="games.html">Games</a>
+  <a href="names.html">Names</a>
+  <a href="calendar.html">Calendar</a>
+  <a href="inspo.html">Inspo Pics</a>
+</nav>
 
   <!-- POLAROID GRID -->
   <div class="polaroid-grid" id="polaroid-grid">
@@ -261,6 +289,53 @@
     // ── INIT ──
     loadFolders();
   </script>
+
+  <script>
+  /* Waffle menu */
+  const waffleBtn = document.getElementById('waffle-btn');
+  const drawer    = document.getElementById('nav-drawer');
+
+  waffleBtn.addEventListener('click', () => {
+    drawer.classList.toggle('open');
+  });
+
+  drawer.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => drawer.classList.remove('open'));
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!drawer.contains(e.target) && !waffleBtn.contains(e.target)) {
+      drawer.classList.remove('open');
+    }
+  });
+
+  /* QR Code */
+  const qrBtn    = document.getElementById('qr-btn');
+  const qrModal  = document.getElementById('qr-modal');
+  const qrClose  = document.getElementById('qr-close');
+  const qrCanvas = document.getElementById('qr-canvas');
+  let qrDone     = false;
+
+  qrBtn.addEventListener('click', () => {
+    if (!qrDone) {
+      const url = window.location.href;
+      document.getElementById('qr-url-text').textContent = url;
+      QRCode.toCanvas(qrCanvas, url, { width: 220, margin: 2,
+        color: { dark: '#FF2D78', light: '#ffffff' }
+      });
+      qrDone = true;
+    }
+    qrModal.classList.add('open');
+  });
+
+  qrClose.addEventListener('click', () => qrModal.classList.remove('open'));
+  qrModal.addEventListener('click', (e) => {
+    if (e.target === qrModal) qrModal.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') qrModal.classList.remove('open');
+  });
+</script>
 
 </body>
 </html>
