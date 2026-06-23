@@ -267,36 +267,26 @@
   .dating-banner { font-size: 0.82rem; gap: 6px; }
   .counter-pill { font-size: 0.95rem; padding: 3px 10px; }
 } */
-
 @media (max-width: 680px) {
-  /* 1. Allow the carousel to grow to fit all 3 stacked images */
-  .carousel-track, 
-  .carousel-slide {
-    height: auto !important; 
-    min-height: 500px;
-  }
+  .nav-links     { display: none; }
+  .nav-title     { font-size: 1.1rem; }
+  .dating-banner { font-size: 0.82rem; gap: 6px; }
+  .counter-pill  { font-size: 0.95rem; padding: 3px 10px; }
+
+  .carousel-track,
+  .carousel-slide { height: auto !important; }   /* ← no fixed height */
 
   .slide {
-    grid-template-columns: 1fr; /* Keep them stacked */
-    gap: 20px;
-    padding: 20px 10px;
+    grid-template-columns: 1fr !important;        /* ← 1 column = 1 image */
+    padding: 8px;
   }
 
-  /* 2. Fix the "weird cropping" for vertical photos */
   .slide img {
     width: 100%;
-    height: auto;
-    /* Use an aspect ratio that favors vertical (portrait) photos */
-    aspect-ratio: 4 / 5; 
+    height: auto !important;
+    aspect-ratio: 2 / 3 !important;
     object-fit: cover;
-    object-position: center; /* Keeps the center of the photo visible */
-    border-radius: 15px;
-  }
-
-  /* 3. Adjust buttons so they stay centered on the taller carousel */
-  .carousel-btn {
-    top: 40%; 
-    width: 40px;
-    height: 40px;
+    object-position: center top;
+    border-radius: 12px;
   }
 }
