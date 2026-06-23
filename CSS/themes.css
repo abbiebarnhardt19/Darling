@@ -1,0 +1,52 @@
+
+    /* ══════════════════════════════════════
+       LIGHT (PINK) THEME
+    ══════════════════════════════════════ */
+    :root {
+      --primary:       #FF2D78;
+      --primary-light: #FF6FA8;
+      --primary-pale:  #FFD6E7;
+      --primary-dark:  #C4005A;
+      --bg:            #FF2D78;
+      --surface:       #ffffff;
+      --nav-bg:        #FF2D78;
+      --nav-text:      #ffffff;
+      --banner-bg:     #FF6FA8;
+      --banner-text:   #ffffff;
+      --text:          #3a003a;
+      --text-muted:    #a0527a;
+      --border:        #FF6FA8;
+      --card-shadow:   0 8px 32px rgba(255,45,120,0.18);
+      --btn-bg:        #FF2D78;
+      --btn-text:      #ffffff;
+      --btn-hover:     #C4005A;
+      --input-bg:      #fff0f6;
+      --input-border:  #FF6FA8;
+      --toggle-track:  rgba(255,255,255,0.3);
+    }
+
+    /* ══════════════════════════════════════
+       DARK (RED/BLACK) THEME
+    ══════════════════════════════════════ */
+    [data-theme="dark"] {
+      --primary:       #E8003A;
+      --primary-light: #FF4060;
+      --primary-pale:  #3a0010;
+      --primary-dark:  #a00028;
+      --bg:            #1a0008;
+      --surface:       #2a000f;
+      --nav-bg:        #0d0003;
+      --nav-text:      #ff4060;
+      --banner-bg:     #2a000f;
+      --banner-text:   #ff4060;
+      --text:          #ffe0ea;
+      --text-muted:    #ff8099;
+      --border:        #E8003A;
+      --card-shadow:   0 8px 32px rgba(232,0,58,0.25);
+      --btn-bg:        #E8003A;
+      --btn-text:      #ffffff;
+      --btn-hover:     #a00028;
+      --input-bg:      #2a000f;
+      --input-border:  #E8003A;
+      --toggle-track:  rgba(232,0,58,0.4);
+    }

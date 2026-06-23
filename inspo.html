@@ -6,8 +6,10 @@
   <title>Inspo Pics – Abbie + Ben</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="inspo styles.css" />
+  <link rel="stylesheet" href="CSS/themes.css" />
+  <link rel="stylesheet" href="CSS/inspo styles.css" />
+  <link rel="stylesheet" href="CSS/general app styles.css" />
+
 
 </head>
 
@@ -124,46 +126,46 @@
       card.style.setProperty("--tilt", `${tilt}deg`);
       card.onclick = () => openGallery(folderName);
 
-      const img = document.createElement("img");
-      img.className = "polaroid-photo loading";
-      img.alt = folderName;
-
       const label = document.createElement("div");
       label.className = "polaroid-label";
       label.textContent = folderName;
 
-      card.appendChild(img);
+      // Start with a color block placeholder — img added only if we find one
+      const placeholder = document.createElement("div");
+      placeholder.className = "polaroid-photo";
+      placeholder.style.backgroundColor = "var(--primary-pale)";
+
+      card.appendChild(placeholder);
       card.appendChild(label);
 
-      // Fetch a random image from this folder
       const { data } = await sb.storage
         .from(INSPO_BUCKET)
         .list(folderName, { limit: 100 });
 
       if (data && data.length) {
         const images = data.filter(f => /\.(jpg|jpeg|png|webp|gif)$/i.test(f.name));
+
         if (images.length) {
           const pick = images[Math.floor(Math.random() * images.length)];
           const url = sb.storage
             .from(INSPO_BUCKET)
             .getPublicUrl(`${folderName}/${pick.name}`).data.publicUrl;
+
+          const img = document.createElement("img");
+          img.className = "polaroid-photo";
+          img.alt = folderName;
           img.src = url;
-          img.onload = () => img.classList.remove("loading");
-          img.onerror = () => {
-            img.classList.remove("loading");
-            img.style.background = "#ddd";
+
+          img.onload = () => {
+            // Swap the color block for the real image
+            card.replaceChild(img, placeholder);
           };
-        } else {
-          img.classList.remove("loading");
-          img.style.background = "#eee";
+          // If image fails, placeholder color block stays — no broken icon
         }
-      } else {
-        img.classList.remove("loading");
       }
 
       return card;
     }
-
     // ── OPEN GALLERY MODAL ──
     async function openGallery(folderName) {
       document.getElementById("modal-title").textContent = folderName;
