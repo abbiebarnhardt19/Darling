@@ -1,0 +1,231 @@
+    /* ══════════════════════════════════════
+       PAGE HEADER
+    ══════════════════════════════════════ */
+    .names-header {
+      text-align: center;
+      padding: 2.5rem 1rem 1.5rem;
+    }
+
+    .names-header h1 {
+      font-family: 'Pacifico', cursive;
+      font-size: 1.8rem;
+      color: var(--banner-text);
+      margin-bottom: 1.25rem;
+    }
+
+    /* ══════════════════════════════════════
+       TYPE TOGGLE (Baby / Pet)
+    ══════════════════════════════════════ */
+    .type-toggle {
+      display: inline-flex;
+      background: var(--surface);
+      border-radius: 50px;
+      padding: 5px;
+      box-shadow: var(--card-shadow);
+      gap: 4px;
+    }
+
+    .type-btn {
+      padding: 9px 28px;
+      border-radius: 50px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .type-btn.active {
+      background: var(--primary);
+      color: var(--btn-text);
+    }
+
+    /* ══════════════════════════════════════
+       NAMES SECTION
+    ══════════════════════════════════════ */
+    .names-section {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 4rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    /* ══════════════════════════════════════
+       NAME LIST CARD
+    ══════════════════════════════════════ */
+    .name-card {
+      background: var(--surface);
+      border-radius: 20px;
+      box-shadow: var(--card-shadow);
+      padding: 1.5rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .name-card h2 {
+      font-family: 'Pacifico', cursive;
+      font-size: 1.2rem;
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 0.25rem;
+    }
+
+    /* ── NAME LIST ── */
+    .name-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    .name-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: var(--input-bg);
+      border: 1.5px solid var(--border);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      color: var(--text);
+      font-size: 0.95rem;
+      transition: background 0.15s;
+    }
+
+    .name-item:hover {
+      background: var(--primary-pale);
+    }
+
+    /* ── DELETE NAME BUTTON ── */
+    .name-delete {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 50%;
+      line-height: 1;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .name-delete:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* ── EMPTY STATE ── */
+    .name-empty {
+      text-align: center;
+      color: var(--text-muted);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 1rem 0;
+    }
+
+    /* ── ADD NAME INPUT ── */
+    .add-name-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+    }
+
+    .add-name-input {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 12px;
+      border: 2px solid var(--input-border);
+      background: var(--input-bg);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .add-name-input:focus {
+      border-color: var(--primary);
+    }
+
+    .add-name-input::placeholder {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .add-name-btn {
+      padding: 9px 14px;
+      border-radius: 12px;
+      border: none;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .add-name-btn:hover {
+      background: var(--btn-hover);
+      transform: scale(1.05);
+    }
+
+    /* ══════════════════════════════════════
+       LOADING SKELETON
+    ══════════════════════════════════════ */
+    .skeleton {
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(90deg, var(--input-bg) 25%, var(--primary-pale) 50%, var(--input-bg) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ══════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════ */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface);
+      color: var(--text);
+      border-left: 4px solid var(--primary);
+      border-radius: 12px;
+      padding: 0.65rem 1.2rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: var(--card-shadow);
+      z-index: 999;
+      transition: transform 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 580px) {
+      .names-section {
+        grid-template-columns: 1fr;
+      }
+    }

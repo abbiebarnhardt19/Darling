@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Names – Abbie + Ben</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="CSS/themes.css" />
+  <link rel="stylesheet" href="CSS/general app styles.css" />
+  <link rel="stylesheet" href="CSS/name styles.css" />
+
+
+</head>
+
+<body>
+
+  <!-- NAV BAR -->
+  <nav>
+    <a class="nav-logo" href="index.html">
+      <span class="nav-title">Abbie + Ben</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="games.html">Games</a></li>
+      <li><a href="names.html" class="active">Names</a></li>
+      <li><a href="calendar.html">Calendar</a></li>
+      <li><a href="inspo.html">Inspo Pics</a></li>
+    </ul>
+    <div class="theme-toggle-wrapper">
+      <label class="theme-toggle">
+        <input type="checkbox" id="theme-checkbox" />
+        <span class="track"></span>
+        <span class="knob"></span>
+      </label>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <div class="names-header">
+    <div class="type-toggle">
+      <button class="type-btn active" id="btn-baby" onclick="switchType('Baby')">🍼 Baby</button>
+      <button class="type-btn"        id="btn-pet"  onclick="switchType('Pet')">🐾 Pet</button>
+    </div>
+  </div>
+
+  <!-- NAME LISTS -->
+  <div class="names-section">
+
+    <!-- GIRL NAMES -->
+    <div class="name-card">
+      <h2 id="girl-title">🎀 Girl Names</h2>
+      <ul class="name-list" id="girl-list">
+        <li class="skeleton"></li>
+        <li class="skeleton"></li>
+        <li class="skeleton"></li>
+      </ul>
+      <div class="add-name-row">
+        <input class="add-name-input" id="girl-input" type="text" placeholder="Add a name..." maxlength="40" />
+        <button class="add-name-btn" onclick="addName('Girl')">+</button>
+      </div>
+    </div>
+
+    <!-- BOY NAMES -->
+    <div class="name-card">
+      <h2 id="boy-title">🏀 Boy Names</h2>
+      <ul class="name-list" id="boy-list">
+        <li class="skeleton"></li>
+        <li class="skeleton"></li>
+        <li class="skeleton"></li>
+      </ul>
+      <div class="add-name-row">
+        <input class="add-name-input" id="boy-input" type="text" placeholder="Add a name..." maxlength="40" />
+        <button class="add-name-btn" onclick="addName('Boy')">+</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+
+  <script>
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ── THEME ──
+    const checkbox = document.getElementById("theme-checkbox");
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem("abbiebenTheme") || "light";
+    if (savedTheme === "dark") {
+      root.setAttribute("data-theme", "dark");
+      checkbox.checked = true;
+    }
+    checkbox.addEventListener("change", () => {
+      const theme = checkbox.checked ? "dark" : "light";
+      root.setAttribute("data-theme", theme);
+      localStorage.setItem("abbiebenTheme", theme);
+    });
+
+    // ── TOAST ──
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2200);
+    }
+
+    // ── STATE ──
+    let currentType = "Baby";
+
+    // ── SWITCH TYPE ──
+    function switchType(type) {
+      currentType = type;
+
+      document.getElementById("btn-baby").classList.toggle("active", type === "Baby");
+      document.getElementById("btn-pet").classList.toggle("active",  type === "Pet");
+
+      // Update card titles
+      if (type === "Baby") {
+        document.getElementById("girl-title").textContent = "🎀 Girl Names";
+        document.getElementById("boy-title").textContent  = "🏀 Boy Names";
+      } else {
+        document.getElementById("girl-title").textContent = "🎀 Girl Names";
+        document.getElementById("boy-title").textContent  = "🏀 Boy Names";
+      }
+
+      loadNames();
+    }
+
+    // ── LOAD NAMES ──
+    async function loadNames() {
+      // Show skeletons while loading
+      setSkeletons("girl-list");
+      setSkeletons("boy-list");
+
+      try {
+        const { data, error } = await sb
+          .from("Names")
+          .select("id, Name, Gender")
+          .eq("Type", currentType)
+          .order("Name", { ascending: true });
+
+        if (error) throw error;
+
+        const girls = (data || []).filter(n => n.Gender === "Girl");
+        const boys  = (data || []).filter(n => n.Gender === "Boy");
+
+        renderList("girl-list", girls);
+        renderList("boy-list",  boys);
+
+      } catch (err) {
+        console.error("Load error:", err);
+        showToast("❌ Couldn't load names");
+        document.getElementById("girl-list").innerHTML = `<li class="name-empty">Failed to load</li>`;
+        document.getElementById("boy-list").innerHTML  = `<li class="name-empty">Failed to load</li>`;
+      }
+    }
+
+    // ── RENDER LIST ──
+    function renderList(listId, names) {
+      const ul = document.getElementById(listId);
+      ul.innerHTML = "";
+
+      if (!names.length) {
+        ul.innerHTML = `<li class="name-empty">No names yet — add one below!</li>`;
+        return;
+      }
+
+      names.forEach(n => {
+        const li = document.createElement("li");
+        li.className = "name-item";
+        li.id = `name-${n.id}`;
+        li.innerHTML = `
+          <span>${n.Name}</span>
+          <button class="name-delete" onclick="deleteName(${n.id}, '${n.Name}')" title="Remove">✕</button>
+        `;
+        ul.appendChild(li);
+      });
+    }
+
+    // ── SKELETONS ──
+    function setSkeletons(listId) {
+      const ul = document.getElementById(listId);
+      ul.innerHTML = `
+        <li class="skeleton"></li>
+        <li class="skeleton"></li>
+        <li class="skeleton"></li>
+      `;
+    }
+
+    // ── ADD NAME ──
+    async function addName(gender) {
+      const inputId = gender === "Girl" ? "girl-input" : "boy-input";
+      const input   = document.getElementById(inputId);
+      const name    = input.value.trim();
+
+      if (!name) {
+        showToast("Enter a name first!");
+        input.focus();
+        return;
+      }
+
+      try {
+        const { error } = await sb
+          .from("Names")
+          .insert([{ Name: name, Gender: gender, Type: currentType }]);
+
+        if (error) throw error;
+
+        input.value = "";
+        showToast(`✅ "${name}" added!`);
+        loadNames();
+
+      } catch (err) {
+        console.error("Insert error:", err);
+        showToast("❌ Couldn't add name — try again");
+      }
+    }
+
+    // ── DELETE NAME ──
+    async function deleteName(id, name) {
+      try {
+        const { error } = await sb
+          .from("Names")
+          .delete()
+          .eq("id", id);
+
+        if (error) throw error;
+
+        // Remove from DOM instantly
+        const el = document.getElementById(`name-${id}`);
+        if (el) el.remove();
+
+        showToast(`🗑️ "${name}" removed`);
+
+        // Check if list is now empty
+        ["girl-list", "boy-list"].forEach(listId => {
+          const ul = document.getElementById(listId);
+          if (ul && ul.children.length === 0) {
+            ul.innerHTML = `<li class="name-empty">No names yet — add one below!</li>`;
+          }
+        });
+
+      } catch (err) {
+        console.error("Delete error:", err);
+        showToast("❌ Couldn't delete — try again");
+      }
+    }
+
+    // ── ENTER KEY SUPPORT ──
+    document.addEventListener("keydown", e => {
+      if (e.key !== "Enter") return;
+      if (document.activeElement.id === "girl-input") addName("Girl");
+      if (document.activeElement.id === "boy-input")  addName("Boy");
+    });
+
+    // ── INIT ──
+    loadNames();
+  </script>
+
+</body>
+</html>
