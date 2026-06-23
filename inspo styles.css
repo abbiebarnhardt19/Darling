@@ -1,0 +1,221 @@
+
+    .polaroid-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ── POLAROID CARD ── */
+    .polaroid {
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.13), 0 1.5px 4px rgba(0,0,0,0.08);
+      width: 200px;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      transform: rotate(var(--tilt, 0deg));
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .polaroid:hover {
+      transform: rotate(0deg) scale(1.05);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+      z-index: 2;
+    }
+    .polaroid-photo {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+      background: #f0f0f0;
+    }
+    .polaroid-photo.loading {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .polaroid-label {
+      padding: 0.6rem 0.5rem 0.8rem;
+      text-align: center;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #333;
+      background: #fff;
+      letter-spacing: 0.02em;
+    }
+
+    /* ── LOADING / EMPTY STATES ── */
+    .state-msg {
+      text-align: center;
+      font-family: 'Nunito', sans-serif;
+      color: var(--text-muted, #888);
+      padding: 3rem 1rem;
+      font-size: 1rem;
+      width: 100%;
+    }
+
+    /* ── GALLERY MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      z-index: 1000;
+      overflow-y: auto;
+      padding: 2rem 1rem 3rem;
+    }
+    .modal-overlay.open { display: block; }
+
+    .modal-box {
+      background: var(--card-bg, #fff);
+      border-radius: 16px;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.5rem 1.5rem 2rem;
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .modal-title {
+      font-family: 'Pacifico', cursive;
+      font-size: 1.6rem;
+      color: var(--primary);
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: var(--text-muted, #888);
+      line-height: 1;
+      padding: 0.2rem 0.5rem;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+    .modal-close:hover { background: rgba(0,0,0,0.08); }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .gallery-item {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      aspect-ratio: 1 / 1;
+      background: #f0f0f0;
+      cursor: pointer;
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.2s ease;
+    }
+    .gallery-item:hover img { transform: scale(1.04); }
+
+    .gallery-item .dl-btn {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.3rem 0.55rem;
+      font-size: 0.78rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .gallery-item:hover .dl-btn { opacity: 1; }
+
+    .modal-loading {
+      text-align: center;
+      padding: 2rem;
+      font-family: 'Nunito', sans-serif;
+      color: var(--primary, #888);
+    }
+
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.93);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 80vh;
+      border-radius: 8px;
+      object-fit: contain;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.5rem;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 2.2rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .lightbox-dl {
+      margin-top: 1rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.6rem 1.4rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .lightbox-dl:hover { opacity: 0.88; }
+
+    /* ── DARK MODE OVERRIDES ── */
+    [data-theme="dark"] .polaroid,
+    [data-theme="dark"] .polaroid-label {
+      background: #2a2a2a;
+      color: #eee;
+    }
+    [data-theme="dark"] .modal-box {
+      background: #1e1e1e;
+    }
+    [data-theme="dark"] .modal-close {
+      color: #aaa;
+    }
+    [data-theme="dark"] .gallery-item {
+      background: #2a2a2a;
+    }

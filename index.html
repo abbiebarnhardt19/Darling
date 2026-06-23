@@ -68,7 +68,7 @@
     <div class="form-group">
       <label for="folder-select">Choose folder</label>
 
-      <select class="input folder-select" id="folder-select">
+      <!-- <select class="input folder-select" id="folder-select">
         <option value="">Select folder</option>
         <option value="homepage">Homepage</option>
         <option value="rings">Rings</option>
@@ -77,6 +77,9 @@
         <option value="pets">Pets</option>
         <option value="other">Other</option>
         <option value="new">New Folder</option>
+      </select> -->
+      <select class="input folder-select" id="folder-select">
+        <option value="">Loading folders...</option>
       </select>
     </div>
 
@@ -284,8 +287,9 @@ async function uploadPhoto() {
 
       } else {
 
-        folderName =
-          folder.charAt(0).toUpperCase() + folder.slice(1);
+        // folderName =
+        //   folder.charAt(0).toUpperCase() + folder.slice(1);
+        folderName = folder;
 
       }
 
@@ -304,10 +308,12 @@ async function uploadPhoto() {
 
   status.textContent = "Uploaded!";
   loadCarousel();
+  loadFolders();
 }
 
 // =====================
 loadCarousel();
+loadFolders();
 
 // =====================
 // DATING COUNTER
@@ -365,7 +371,66 @@ checkbox.addEventListener("change", () => {
     root.setAttribute("data-theme", "light");
     localStorage.setItem("abbiebenTheme", "light");
   }
+
 });
+async function loadFolders() {
+  const select = document.getElementById("folder-select");
+
+  select.innerHTML = `
+    <option value="">Select folder</option>
+    <option value="homepage">Homepage</option>
+  `;
+
+  const { data, error } = await sb.storage
+    .from("Inspo Pics")
+    .list("", { limit: 1000 }); // Remove recursive: true
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  console.log("FILES:", data); // Should now show folder objects
+
+  const folderSet = new Set();
+
+  for (const item of data) {
+    if (!item.name) continue;
+
+    // Supabase folders have id: null and no file extension
+    if (item.id === null) {
+      folderSet.add(item.name);
+    }
+  }
+
+  Array.from(folderSet)
+    .sort()
+    .forEach(folder => {
+      const option = document.createElement("option");
+      option.value = folder;
+      option.textContent = folder;
+      select.appendChild(option);
+    });
+
+  const newOption = document.createElement("option");
+  newOption.value = "new";
+  newOption.textContent = "New Folder";
+  select.appendChild(newOption);
+}
+
+function showFileName(input) {
+  const fileNameEl = document.getElementById("selected-file-name");
+  const fileLabel = document.querySelector(".file-drop span");
+
+  if (input.files && input.files[0]) {
+    const name = input.files[0].name;
+    fileLabel.textContent = name; // Updates the "Click to select a photo" text
+    fileNameEl.textContent = name; // Also updates the div below (optional)
+  } else {
+    fileLabel.textContent = "Click to select a photo"; // Resets if no file
+    fileNameEl.textContent = "";
+  }
+}
 </script>
 
 </body>

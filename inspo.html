@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inspo Pics – Abbie + Ben</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="inspo styles.css" />
+
+</head>
+
+<body>
+
+  <!-- NAV BAR -->
+  <nav>
+    <a class="nav-logo" href="index.html">
+      <span class="nav-title">Abbie + Ben</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="games.html">Games</a></li>
+      <li><a href="names.html">Names</a></li>
+      <li><a href="calendar.html">Calendar</a></li>
+      <li><a href="inspo.html" class="active">Inspo Pics</a></li>
+    </ul>
+    <div class="theme-toggle-wrapper">
+      <label class="theme-toggle">
+        <input type="checkbox" id="theme-checkbox" />
+        <span class="track"></span>
+        <span class="knob"></span>
+      </label>
+    </div>
+  </nav>
+
+  <!-- POLAROID GRID -->
+  <div class="polaroid-grid" id="polaroid-grid">
+    <div class="state-msg" id="grid-status">Loading folders...</div>
+  </div>
+
+  <!-- GALLERY MODAL -->
+  <div class="modal-overlay" id="gallery-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-title">Folder</span>
+        <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+      </div>
+      <div class="gallery-grid" id="gallery-grid">
+        <div class="modal-loading">Loading images...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">&#x2715;</button>
+    <img id="lightbox-img" src="" alt="Full size" />
+    <a class="lightbox-dl" id="lightbox-dl" href="#" download>⬇ Download</a>
+  </div>
+
+  <!-- SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+
+  <script>
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const INSPO_BUCKET = "Inspo Pics";
+
+    // ── TILTS for polaroid cards ──
+    const tilts = [-3, 2, -1.5, 3, -2.5, 1, -2, 2.5];
+
+    // ── THEME ──
+    const checkbox = document.getElementById("theme-checkbox");
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem("abbiebenTheme") || "light";
+    if (savedTheme === "dark") {
+      root.setAttribute("data-theme", "dark");
+      checkbox.checked = true;
+    }
+    checkbox.addEventListener("change", () => {
+      const theme = checkbox.checked ? "dark" : "light";
+      root.setAttribute("data-theme", theme);
+      localStorage.setItem("abbiebenTheme", theme);
+    });
+
+    // ── LOAD FOLDERS & BUILD POLAROIDS ──
+    async function loadFolders() {
+      const grid = document.getElementById("polaroid-grid");
+      const status = document.getElementById("grid-status");
+
+      const { data, error } = await sb.storage
+        .from(INSPO_BUCKET)
+        .list("", { limit: 1000 });
+
+      if (error) {
+        status.textContent = "Couldn't load folders 😢";
+        console.error(error);
+        return;
+      }
+
+      // Folders have id === null
+      const folders = data.filter(item => item.id === null && item.name);
+
+      if (!folders.length) {
+        status.textContent = "No folders found in Inspo Pics.";
+        return;
+      }
+
+      status.remove();
+
+      for (let i = 0; i < folders.length; i++) {
+        const folder = folders[i].name;
+        const tilt = tilts[i % tilts.length];
+        const card = await buildPolaroid(folder, tilt);
+        grid.appendChild(card);
+      }
+    }
+
+    // ── BUILD A SINGLE POLAROID ──
+    async function buildPolaroid(folderName, tilt) {
+      const card = document.createElement("div");
+      card.className = "polaroid";
+      card.style.setProperty("--tilt", `${tilt}deg`);
+      card.onclick = () => openGallery(folderName);
+
+      const img = document.createElement("img");
+      img.className = "polaroid-photo loading";
+      img.alt = folderName;
+
+      const label = document.createElement("div");
+      label.className = "polaroid-label";
+      label.textContent = folderName;
+
+      card.appendChild(img);
+      card.appendChild(label);
+
+      // Fetch a random image from this folder
+      const { data } = await sb.storage
+        .from(INSPO_BUCKET)
+        .list(folderName, { limit: 100 });
+
+      if (data && data.length) {
+        const images = data.filter(f => /\.(jpg|jpeg|png|webp|gif)$/i.test(f.name));
+        if (images.length) {
+          const pick = images[Math.floor(Math.random() * images.length)];
+          const url = sb.storage
+            .from(INSPO_BUCKET)
+            .getPublicUrl(`${folderName}/${pick.name}`).data.publicUrl;
+          img.src = url;
+          img.onload = () => img.classList.remove("loading");
+          img.onerror = () => {
+            img.classList.remove("loading");
+            img.style.background = "#ddd";
+          };
+        } else {
+          img.classList.remove("loading");
+          img.style.background = "#eee";
+        }
+      } else {
+        img.classList.remove("loading");
+      }
+
+      return card;
+    }
+
+    // ── OPEN GALLERY MODAL ──
+    async function openGallery(folderName) {
+      document.getElementById("modal-title").textContent = folderName;
+      document.getElementById("gallery-grid").innerHTML =
+        '<div class="modal-loading">Loading images...</div>';
+      document.getElementById("gallery-modal").classList.add("open");
+      document.body.style.overflow = "hidden";
+
+      const { data, error } = await sb.storage
+        .from(INSPO_BUCKET)
+        .list(folderName, { limit: 500 });
+
+      const galleryGrid = document.getElementById("gallery-grid");
+
+      if (error || !data || !data.length) {
+        galleryGrid.innerHTML = '<div class="modal-loading">No images found.</div>';
+        return;
+      }
+
+      const images = data.filter(f => /\.(jpg|jpeg|png|webp|gif)$/i.test(f.name));
+
+      if (!images.length) {
+        galleryGrid.innerHTML = '<div class="modal-loading">No images in this folder.</div>';
+        return;
+      }
+
+      galleryGrid.innerHTML = "";
+
+      images.forEach(file => {
+        const publicUrl = sb.storage
+          .from(INSPO_BUCKET)
+          .getPublicUrl(`${folderName}/${file.name}`).data.publicUrl;
+
+        const item = document.createElement("div");
+        item.className = "gallery-item";
+
+        const img = document.createElement("img");
+        img.src = publicUrl;
+        img.alt = file.name;
+        img.loading = "lazy";
+        img.onclick = () => openLightbox(publicUrl, file.name);
+
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.href = publicUrl;
+        dlBtn.download = file.name;
+        dlBtn.textContent = "⬇ Save";
+        dlBtn.onclick = e => e.stopPropagation();
+
+        item.appendChild(img);
+        item.appendChild(dlBtn);
+        galleryGrid.appendChild(item);
+      });
+    }
+
+    // ── CLOSE MODAL ──
+    function closeModal() {
+      document.getElementById("gallery-modal").classList.remove("open");
+      document.body.style.overflow = "";
+    }
+
+    // Close modal on overlay click
+    document.getElementById("gallery-modal").addEventListener("click", function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // ── LIGHTBOX ──
+    function openLightbox(url, filename) {
+      document.getElementById("lightbox-img").src = url;
+      document.getElementById("lightbox-dl").href = url;
+      document.getElementById("lightbox-dl").download = filename;
+      document.getElementById("lightbox").classList.add("open");
+    }
+
+    function closeLightbox() {
+      document.getElementById("lightbox").classList.remove("open");
+      document.getElementById("lightbox-img").src = "";
+    }
+
+    // Close lightbox on background click
+    document.getElementById("lightbox").addEventListener("click", function(e) {
+      if (e.target === this) closeLightbox();
+    });
+
+    // ── KEYBOARD SUPPORT ──
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") {
+        closeLightbox();
+        closeModal();
+      }
+    });
+
+    // ── INIT ──
+    loadFolders();
+  </script>
+
+</body>
+</html>
