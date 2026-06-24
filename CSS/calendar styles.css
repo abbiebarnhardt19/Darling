@@ -241,6 +241,12 @@
       text-overflow: ellipsis;
       cursor: pointer;
       transition: background 0.15s;
+        min-width: 0;          /* ✅ prevents the pill from pushing the cell wider */
+        max-width: 100%;       /* ✅ caps the pill at the cell boundary */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        box-sizing: border-box;
     }
 
     .cal-event:hover { background: var(--primary-light); color: #fff; }
