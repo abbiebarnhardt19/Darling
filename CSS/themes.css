@@ -29,24 +29,24 @@
        DARK (RED/BLACK) THEME
     ══════════════════════════════════════ */
     [data-theme="dark"] {
-      --primary:       #E8003A;
-      --primary-light: #FF4060;
+      --primary:       #c80c32;
+      --primary-light: #c80c32;
       --primary-pale:  #3a0010;
       --primary-dark:  #a00028;
       --bg:            #1a0008;
       --surface:       #2a000f;
       --nav-bg:        #0d0003;
-      --nav-text:      #ff4060;
+      --nav-text:      #c80c32;
       --banner-bg:     #2a000f;
-      --banner-text:   #ff4060;
+      --banner-text:   #c80c32;
       --text:          #ffe0ea;
       --text-muted:    #ff8099;
-      --border:        #E8003A;
+      --border:        #c80c32;
       --card-shadow:   0 8px 32px rgba(232,0,58,0.25);
-      --btn-bg:        #E8003A;
+      --btn-bg:        #c80c32;
       --btn-text:      #ffffff;
       --btn-hover:     #a00028;
       --input-bg:      #2a000f;
-      --input-border:  #E8003A;
+      --input-border:  #c80c32;
       --toggle-track:  rgba(232,0,58,0.4);
     }

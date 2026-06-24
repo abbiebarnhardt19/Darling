@@ -28,87 +28,6 @@
 }
 
 /* ══════════════════════════════════════
-   CAROUSEL
-══════════════════════════════════════ */
-.carousel-section {
-  position: relative;
-  width: 100%;
-  /* overflow: hidden; */
-  background: var(--primary-pale);
-}
-
-.carousel-window {
-  width: 100%;
-  /* overflow: hidden; */
-}
-
-.carousel-track {
-  display: flex;
-  transition: transform 0.5s ease;
-  width: 100%;
-  height: auto;
-}
-
-.slide {
-  min-width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-  padding: 10px;
-}
-
-.slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 12px;
-}
-
-.carousel-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  font-size: 1.4rem;
-  cursor: pointer;
-  z-index: 10;
-  color: var(--primary);
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
-  transition: transform 0.2s;
-}
-
-.carousel-btn:hover { transform: translateY(-50%) scale(1.1); }
-.carousel-btn.prev  { left: 18px; }
-.carousel-btn.next  { right: 18px; }
-
-.carousel-dots {
-  position: absolute;
-  bottom: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 9px;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
-  cursor: pointer;
-  border: 1.5px solid rgba(255, 255, 255, 0.3);
-}
-
-.dot.active {
-  background: #fff;
-  transform: scale(1.3);
-}
-
-/* ══════════════════════════════════════
    UPLOAD SECTION (Clipboard Stack)
 ══════════════════════════════════════ */
 .upload-section {
@@ -259,28 +178,100 @@
   color: var(--text-muted);
 }
 
+
 /* ══════════════════════════════════════
-   RESPONSIVE
+   CAROUSEL
 ══════════════════════════════════════ */
 
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  font-size: 1.4rem;
+  cursor: pointer;
+  z-index: 10;
+  color: var(--primary);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s;
+}
+
+.carousel-btn:hover { transform: translateY(-50%) scale(1.1); }
+.carousel-btn.prev  { left: 18px; }
+.carousel-btn.next  { right: 18px; }
+
+.carousel-dots {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 9px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+}
+
+.dot.active {
+  background: #fff;
+  transform: scale(1.3);
+}
+.carousel-section {
+  position: relative;
+  width: 100%;
+  height: 720px;
+  overflow: hidden;        /* ← back on */
+  background: var(--primary-pale);
+}
+
+.carousel-window {
+  width: 100%;
+  overflow: hidden;        /* ← back on */
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.5s ease;
+  width: 100%;
+}
+
+/* ── Desktop: 3 images, fixed height ── */
+.slide {
+  min-width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+}
+
+.slide img {
+  width: 100%;
+  height: 720px;           /* ← explicit height, not 100% */
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* ── Mobile: 1 image, portrait ratio ── */
 @media (max-width: 680px) {
-  .nav-links     { display: none; }
-  .nav-title     { font-size: 1.1rem; }
-  .dating-banner { font-size: 0.82rem; gap: 6px; }
-  .counter-pill  { font-size: 0.95rem; padding: 3px 10px; }
-
-  .carousel-track,
-  .carousel-slide { height: auto !important; }   /* ← no fixed height */
-
   .slide {
-    grid-template-columns: 1fr !important;        /* ← 1 column = 1 image */
+    grid-template-columns: 1fr !important;
     padding: 8px;
   }
 
   .slide img {
-    width: 100%;
-    height: auto !important;
-    aspect-ratio: 2 / 3 !important;
+    height: 720px !important;      /* ← tall explicit height */
+    width: 100% !important;
+    aspect-ratio: unset !important; /* ← remove ratio, use height instead */
     object-fit: cover;
     object-position: center top;
     border-radius: 12px;
