@@ -106,7 +106,7 @@
        CALENDAR WRAPPER
     ══════════════════════════════════════ */
     .cal-wrapper {
-      max-width: 960px;
+      max-width: 100%;
       margin: 0 auto;
       padding: 0 1.5rem 4rem;
       padding-top: 10%;
@@ -146,7 +146,7 @@
     .month-label {
       font-family: 'Pacifico', cursive;
       font-size: 1.4rem;
-      color: var(--surface);
+      color: "var(--text)";
       min-width: 220px;
       text-align: center;
     }
@@ -182,12 +182,16 @@
     }
 
     .cal-cell {
-      min-height: 90px;
-      border-right: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 6px 5px 4px;
-      position: relative;
-      transition: background 0.15s;
+    min-height: 90px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 5px 4px;
+    position: relative;
+    transition: background 0.15s;
+    min-width: 0; 
+    overflow: hidden; 
+    width: 100%;
+    box-sizing: border-box;
     }
 
     .cal-cell:nth-child(7n) { border-right: none; }
