@@ -11,70 +11,93 @@
   <link rel="stylesheet" href="CSS/general app styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
-<div class="qr-modal-overlay" id="qr-modal">
-  <div class="qr-modal-box">
-    <button class="qr-modal-close" id="qr-close">✕</button>
-    <p class="qr-modal-title">Open on your phone</p>
-    <p class="qr-modal-subtitle">Scan with your camera to open this page on any device.</p>
-    <canvas id="qr-canvas"></canvas>
-    <p class="qr-url-text" id="qr-url-text"></p>
-  </div>
-</div>
+  <style>
+    /* Ensure the modal title uses the theme-aware color */
+    .modal-title {
+      font-family: 'Pacifico', cursive;
+      font-size: 1.6rem;
+      color: var(--modal-title-color, #e07fa0);
+    }
+    [data-theme="dark"] .modal-title {
+      color: #f4a7bf;
+    }
+
+    /* Header readability fixes */
+    .inspo-header h1 {
+      color: var(--accent, #e07fa0);
+    }
+    .inspo-header p {
+      color: var(--text-muted, #888);
+    }
+    [data-theme="dark"] .inspo-header h1 { color: #f4a7bf; }
+    [data-theme="dark"] .inspo-header p { color: #bbb; }
+  </style>
+</head>
 
 <body>
-  <nav>
-  <a class="nav-logo" href="index.html">
-    <span class="nav-title">Abbie + Ben</span>
-  </a>
 
-  <ul class="nav-links">
-    <li><a href="index.html">Home</a></li>
-    <li><a href="games.html">Games</a></li>
-    <li><a href="names.html">Names</a></li>
-    <li><a href="calendar.html">Calendar</a></li>
-    <li><a href="inspo.html"class="active">Inspo Pics</a></li>
-  </ul>
-
-  <div class="nav-right">
-    <button class="nav-qr-btn" id="qr-btn" title="Open on your phone">📱</button>
-
-    <div class="theme-toggle-wrapper">
-      <label class="theme-toggle">
-        <input type="checkbox" id="theme-checkbox" />
-        <span class="track"></span>
-        <span class="knob"></span>
-      </label>
+  <div class="qr-modal-overlay" id="qr-modal">
+    <div class="qr-modal-box">
+      <button class="qr-modal-close" id="qr-close">✕</button>
+      <p class="qr-modal-title">Open on your phone</p>
+      <p class="qr-modal-subtitle">Scan with your camera to open this page on any device.</p>
+      <canvas id="qr-canvas"></canvas>
+      <p class="qr-url-text" id="qr-url-text"></p>
     </div>
-
-    <button class="nav-waffle" id="waffle-btn" aria-label="Open menu">
-      <span class="waffle-icon">
-        <span></span><span></span><span></span>
-        <span></span><span></span><span></span>
-        <span></span><span></span><span></span>
-      </span>
-    </button>
   </div>
-</nav>
 
-<nav class="nav-drawer" id="nav-drawer">
-  <a href="index.html" class="active">Home</a>
-  <a href="games.html">Games</a>
-  <a href="names.html">Names</a>
-  <a href="calendar.html">Calendar</a>
-  <a href="inspo.html">Inspo Pics</a>
-</nav>
+  <nav>
+    <a class="nav-logo" href="index.html">
+      <span class="nav-title">Abbie + Ben</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="games.html">Games</a></li>
+      <li><a href="names.html">Names</a></li>
+      <li><a href="calendar.html">Calendar</a></li>
+      <li><a href="inspo.html" class="active">Inspo Pics</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="nav-qr-btn" id="qr-btn" title="Open on your phone">📱</button>
+      <div class="theme-toggle-wrapper">
+        <label class="theme-toggle">
+          <input type="checkbox" id="theme-checkbox" />
+          <span class="track"></span>
+          <span class="knob"></span>
+        </label>
+      </div>
+      <button class="nav-waffle" id="waffle-btn" aria-label="Open menu">
+        <span class="waffle-icon">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </span>
+      </button>
+    </div>
+  </nav>
 
-  <!-- POLAROID GRID -->
+  <nav class="nav-drawer" id="nav-drawer">
+    <a href="index.html">Home</a>
+    <a href="games.html">Games</a>
+    <a href="names.html">Names</a>
+    <a href="calendar.html">Calendar</a>
+    <a href="inspo.html" class="active">Inspo Pics</a>
+  </nav>
+
+  <div class="inspo-header" style="text-align: center; padding: 2rem 1rem;">
+    <h1>Inspo Pics ✨</h1>
+    <p>Click a folder to browse &amp; save photos</p>
+  </div>
+
   <div class="polaroid-grid" id="polaroid-grid">
     <div class="state-msg" id="grid-status">Loading folders...</div>
   </div>
 
-  <!-- GALLERY MODAL -->
   <div class="modal-overlay" id="gallery-modal">
     <div class="modal-box">
-      <div class="modal-header">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
         <span class="modal-title" id="modal-title">Folder</span>
-        <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+        <button class="modal-close" onclick="closeModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-muted);">✕</button>
       </div>
       <div class="gallery-grid" id="gallery-grid">
         <div class="modal-loading">Loading images...</div>
@@ -82,22 +105,18 @@
     </div>
   </div>
 
-  <!-- LIGHTBOX -->
   <div class="lightbox" id="lightbox">
-    <button class="lightbox-close" onclick="closeLightbox()">&#x2715;</button>
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
     <img id="lightbox-img" src="" alt="Full size" />
-    <a class="lightbox-dl" id="lightbox-dl" href="#" download>⬇ Download</a>
+    <button class="lightbox-dl" id="lightbox-dl-btn" onclick="downloadCurrent()">⬇ Save to Photos</button>
   </div>
 
-  <!-- SUPABASE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
 
   <script>
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const INSPO_BUCKET = "Inspo Pics";
-
-    // ── TILTS for polaroid cards ──
     const tilts = [-3, 2, -1.5, 3, -2.5, 1, -2, 2.5];
 
     // ── THEME ──
@@ -114,40 +133,21 @@
       localStorage.setItem("abbiebenTheme", theme);
     });
 
-    // ── LOAD FOLDERS & BUILD POLAROIDS ──
+    // ── LOAD FOLDERS ──
     async function loadFolders() {
       const grid = document.getElementById("polaroid-grid");
       const status = document.getElementById("grid-status");
-
-      const { data, error } = await sb.storage
-        .from(INSPO_BUCKET)
-        .list("", { limit: 1000 });
-
-      if (error) {
-        status.textContent = "Couldn't load folders 😢";
-        console.error(error);
-        return;
-      }
-
-      // Folders have id === null
+      const { data, error } = await sb.storage.from(INSPO_BUCKET).list("", { limit: 1000 });
+      if (error) { status.textContent = "Error loading folders"; return; }
       const folders = data.filter(item => item.id === null && item.name);
-
-      if (!folders.length) {
-        status.textContent = "No folders found in Inspo Pics.";
-        return;
-      }
-
+      if (!folders.length) { status.textContent = "No folders found"; return; }
       status.remove();
-
       for (let i = 0; i < folders.length; i++) {
-        const folder = folders[i].name;
-        const tilt = tilts[i % tilts.length];
-        const card = await buildPolaroid(folder, tilt);
+        const card = await buildPolaroid(folders[i].name, tilts[i % tilts.length]);
         grid.appendChild(card);
       }
     }
 
-    // ── BUILD A SINGLE POLAROID ──
     async function buildPolaroid(folderName, tilt) {
       const card = document.createElement("div");
       card.className = "polaroid";
@@ -158,184 +158,129 @@
       label.className = "polaroid-label";
       label.textContent = folderName;
 
-      // Start with a color block placeholder — img added only if we find one
       const placeholder = document.createElement("div");
       placeholder.className = "polaroid-photo";
       placeholder.style.backgroundColor = "var(--primary-pale)";
-
       card.appendChild(placeholder);
       card.appendChild(label);
 
-      const { data } = await sb.storage
-        .from(INSPO_BUCKET)
-        .list(folderName, { limit: 100 });
-
+      const { data } = await sb.storage.from(INSPO_BUCKET).list(folderName, { limit: 100 });
       if (data && data.length) {
         const images = data.filter(f => /\.(jpg|jpeg|png|webp|gif)$/i.test(f.name));
-
         if (images.length) {
           const pick = images[Math.floor(Math.random() * images.length)];
-          const url = sb.storage
-            .from(INSPO_BUCKET)
-            .getPublicUrl(`${folderName}/${pick.name}`).data.publicUrl;
-
+          const url = sb.storage.from(INSPO_BUCKET).getPublicUrl(`${folderName}/${pick.name}`).data.publicUrl;
           const img = document.createElement("img");
           img.className = "polaroid-photo";
-          img.alt = folderName;
           img.src = url;
-
-          img.onload = () => {
-            // Swap the color block for the real image
-            card.replaceChild(img, placeholder);
-          };
-          // If image fails, placeholder color block stays — no broken icon
+          img.onload = () => card.replaceChild(img, placeholder);
         }
       }
-
       return card;
     }
-    // ── OPEN GALLERY MODAL ──
+
     async function openGallery(folderName) {
       document.getElementById("modal-title").textContent = folderName;
-      document.getElementById("gallery-grid").innerHTML =
-        '<div class="modal-loading">Loading images...</div>';
+      const grid = document.getElementById("gallery-grid");
+      grid.innerHTML = '<div class="modal-loading">Loading...</div>';
       document.getElementById("gallery-modal").classList.add("open");
       document.body.style.overflow = "hidden";
 
-      const { data, error } = await sb.storage
-        .from(INSPO_BUCKET)
-        .list(folderName, { limit: 500 });
-
-      const galleryGrid = document.getElementById("gallery-grid");
-
-      if (error || !data || !data.length) {
-        galleryGrid.innerHTML = '<div class="modal-loading">No images found.</div>';
-        return;
-      }
-
+      const { data, error } = await sb.storage.from(INSPO_BUCKET).list(folderName, { limit: 500 });
+      if (error || !data.length) { grid.innerHTML = "No images found"; return; }
       const images = data.filter(f => /\.(jpg|jpeg|png|webp|gif)$/i.test(f.name));
-
-      if (!images.length) {
-        galleryGrid.innerHTML = '<div class="modal-loading">No images in this folder.</div>';
-        return;
-      }
-
-      galleryGrid.innerHTML = "";
-
+      grid.innerHTML = "";
       images.forEach(file => {
-        const publicUrl = sb.storage
-          .from(INSPO_BUCKET)
-          .getPublicUrl(`${folderName}/${file.name}`).data.publicUrl;
-
+        const url = sb.storage.from(INSPO_BUCKET).getPublicUrl(`${folderName}/${file.name}`).data.publicUrl;
         const item = document.createElement("div");
         item.className = "gallery-item";
-
         const img = document.createElement("img");
-        img.src = publicUrl;
-        img.alt = file.name;
-        img.loading = "lazy";
-        img.onclick = () => openLightbox(publicUrl, file.name);
-
-        const dlBtn = document.createElement("a");
-        dlBtn.className = "dl-btn";
-        dlBtn.href = publicUrl;
-        dlBtn.download = file.name;
-        dlBtn.textContent = "⬇ Save";
-        dlBtn.onclick = e => e.stopPropagation();
-
+        img.src = url;
+        img.onclick = () => openLightbox(url, file.name);
+        const btn = document.createElement("button");
+        btn.className = "dl-btn";
+        btn.textContent = "⬇ Save";
+        btn.onclick = (e) => { e.stopPropagation(); downloadFile(url, file.name); };
         item.appendChild(img);
-        item.appendChild(dlBtn);
-        galleryGrid.appendChild(item);
+        item.appendChild(btn);
+        grid.appendChild(item);
       });
     }
 
-    // ── CLOSE MODAL ──
-    function closeModal() {
-      document.getElementById("gallery-modal").classList.remove("open");
-      document.body.style.overflow = "";
-    }
-
-    // Close modal on overlay click
-    document.getElementById("gallery-modal").addEventListener("click", function(e) {
-      if (e.target === this) closeModal();
-    });
-
-    // ── LIGHTBOX ──
-    function openLightbox(url, filename) {
+    let currentUrl = "";
+    let currentName = "";
+    function openLightbox(url, name) {
+      currentUrl = url; currentName = name;
       document.getElementById("lightbox-img").src = url;
-      document.getElementById("lightbox-dl").href = url;
-      document.getElementById("lightbox-dl").download = filename;
       document.getElementById("lightbox").classList.add("open");
     }
+    function closeLightbox() { document.getElementById("lightbox").classList.remove("open"); }
+    function closeModal() { document.getElementById("gallery-modal").classList.remove("open"); document.body.style.overflow = ""; }
+    function downloadCurrent() { downloadFile(currentUrl, currentName); }
 
-    function closeLightbox() {
-      document.getElementById("lightbox").classList.remove("open");
-      document.getElementById("lightbox-img").src = "";
+    // ── 📱 MOBILE-FIRST DOWNLOAD LOGIC ──
+    async function downloadFile(url, filename) {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const file = new File([blob], filename, { type: blob.type });
+
+        // Use Share API for Mobile (triggers "Save Image" to Camera Roll)
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Save to Photos',
+          });
+        } else {
+          // Desktop Fallback
+          const blobUrl = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = blobUrl;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(blobUrl);
+        }
+      } catch (err) {
+        console.error("Download failed:", err);
+        // Last resort: Open in new tab with Supabase download param
+        window.open(url + "?download=", "_blank");
+      }
     }
 
-    // Close lightbox on background click
-    document.getElementById("lightbox").addEventListener("click", function(e) {
-      if (e.target === this) closeLightbox();
-    });
+    // Close on background click
+    document.getElementById("gallery-modal").addEventListener("click", e => { if(e.target.id === "gallery-modal") closeModal(); });
+    document.getElementById("lightbox").addEventListener("click", e => { if(e.target.id === "lightbox") closeLightbox(); });
+    document.addEventListener("keydown", e => { if(e.key === "Escape") { closeModal(); closeLightbox(); } });
 
-    // ── KEYBOARD SUPPORT ──
-    document.addEventListener("keydown", e => {
-      if (e.key === "Escape") {
-        closeLightbox();
-        closeModal();
-      }
-    });
-
-    // ── INIT ──
     loadFolders();
   </script>
 
   <script>
-  /* Waffle menu */
-  const waffleBtn = document.getElementById('waffle-btn');
-  const drawer    = document.getElementById('nav-drawer');
+    /* Waffle & QR Logic */
+    const waffleBtn = document.getElementById('waffle-btn');
+    const drawer = document.getElementById('nav-drawer');
+    waffleBtn.addEventListener('click', () => drawer.classList.toggle('open'));
+    document.addEventListener('click', (e) => {
+      if (!drawer.contains(e.target) && !waffleBtn.contains(e.target)) drawer.classList.remove('open');
+    });
 
-  waffleBtn.addEventListener('click', () => {
-    drawer.classList.toggle('open');
-  });
-
-  drawer.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => drawer.classList.remove('open'));
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!drawer.contains(e.target) && !waffleBtn.contains(e.target)) {
-      drawer.classList.remove('open');
-    }
-  });
-
-  /* QR Code */
-  const qrBtn    = document.getElementById('qr-btn');
-  const qrModal  = document.getElementById('qr-modal');
-  const qrClose  = document.getElementById('qr-close');
-  const qrCanvas = document.getElementById('qr-canvas');
-  let qrDone     = false;
-
-  qrBtn.addEventListener('click', () => {
-    if (!qrDone) {
-      const url = window.location.href;
-      document.getElementById('qr-url-text').textContent = url;
-      QRCode.toCanvas(qrCanvas, url, { width: 220, margin: 2,
-        color: { dark: '#FF2D78', light: '#ffffff' }
-      });
-      qrDone = true;
-    }
-    qrModal.classList.add('open');
-  });
-
-  qrClose.addEventListener('click', () => qrModal.classList.remove('open'));
-  qrModal.addEventListener('click', (e) => {
-    if (e.target === qrModal) qrModal.classList.remove('open');
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') qrModal.classList.remove('open');
-  });
-</script>
-
+    const qrBtn = document.getElementById('qr-btn');
+    const qrModal = document.getElementById('qr-modal');
+    const qrClose = document.getElementById('qr-close');
+    const qrCanvas = document.getElementById('qr-canvas');
+    let qrDone = false;
+    qrBtn.addEventListener('click', () => {
+      if (!qrDone) {
+        const url = window.location.href;
+        document.getElementById('qr-url-text').textContent = url;
+        QRCode.toCanvas(qrCanvas, url, { width: 220, margin: 2, color: { dark: '#FF2D78', light: '#ffffff' } });
+        qrDone = true;
+      }
+      qrModal.classList.add('open');
+    });
+    qrClose.addEventListener('click', () => qrModal.classList.remove('open'));
+  </script>
 </body>
 </html>
