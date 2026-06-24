@@ -10,28 +10,6 @@
   <link rel="stylesheet" href="CSS/inspo styles.css" />
   <link rel="stylesheet" href="CSS/general app styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-
-  <style>
-    /* Ensure the modal title uses the theme-aware color */
-    .modal-title {
-      font-family: 'Pacifico', cursive;
-      font-size: 1.6rem;
-      color: var(--modal-title-color, #e07fa0);
-    }
-    [data-theme="dark"] .modal-title {
-      color: #f4a7bf;
-    }
-
-    /* Header readability fixes */
-    .inspo-header h1 {
-      color: var(--accent, #e07fa0);
-    }
-    .inspo-header p {
-      color: var(--text-muted, #888);
-    }
-    [data-theme="dark"] .inspo-header h1 { color: #f4a7bf; }
-    [data-theme="dark"] .inspo-header p { color: #bbb; }
-  </style>
 </head>
 
 <body>
@@ -83,11 +61,6 @@
     <a href="calendar.html">Calendar</a>
     <a href="inspo.html" class="active">Inspo Pics</a>
   </nav>
-
-  <div class="inspo-header" style="text-align: center; padding: 2rem 1rem;">
-    <h1>Inspo Pics ✨</h1>
-    <p>Click a folder to browse &amp; save photos</p>
-  </div>
 
   <div class="polaroid-grid" id="polaroid-grid">
     <div class="state-msg" id="grid-status">Loading folders...</div>
