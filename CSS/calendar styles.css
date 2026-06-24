@@ -146,7 +146,7 @@
     .month-label {
       font-family: 'Pacifico', cursive;
       font-size: 1.4rem;
-      color: "var(--text)";
+      color: var(--btn-text);
       min-width: 220px;
       text-align: center;
     }
@@ -162,7 +162,7 @@
     .cal-day-headers {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
-      background: var(--primary);
+      background: var(--primary-dark);
     }
 
     .cal-day-header {
@@ -174,6 +174,7 @@
       color: var(--btn-text);
       text-transform: uppercase;
       letter-spacing: 0.06em;
+
     }
 
     .cal-cells {
