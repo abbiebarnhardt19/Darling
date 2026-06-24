@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendar – Abbie + Ben</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="CSS/themes.css" />
+  <link rel="stylesheet" href="CSS/general app styles.css" />
+  <link rel="stylesheet" href="CSS/calendar styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+</head>
+
+<body>
+
+  <div class="qr-modal-overlay" id="qr-modal">
+    <div class="qr-modal-box">
+      <button class="qr-modal-close" id="qr-close">✕</button>
+      <p class="qr-modal-title">Open on your phone</p>
+      <p class="qr-modal-subtitle">Scan with your camera to open this page on any device.</p>
+      <canvas id="qr-canvas"></canvas>
+      <p class="qr-url-text" id="qr-url-text"></p>
+    </div>
+  </div>
+
+  <!-- NAV BAR -->
+<nav>
+  <a class="nav-logo" href="index.html">
+    <span class="nav-title">Abbie + Ben</span>
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="games.html">Games</a></li>
+    <li><a href="names.html">Names</a></li>
+    <li><a href="calendar.html" class="active">Calendar</a></li>
+    <li><a href="inspo.html">Inspo Pics</a></li>
+  </ul>
+
+  <div class="nav-right">
+    <button class="nav-qr-btn" id="qr-btn" title="Open on your phone">📱</button>
+
+    <div class="theme-toggle-wrapper">
+      <label class="theme-toggle">
+        <input type="checkbox" id="theme-checkbox" />
+        <span class="track"></span>
+        <span class="knob"></span>
+      </label>
+    </div>
+
+    <button class="nav-waffle" id="waffle-btn" aria-label="Open menu">
+      <span class="waffle-icon">
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+      </span>
+    </button>
+  </div>
+</nav>
+
+<nav class="nav-drawer" id="nav-drawer">
+  <a href="index.html" class="active">Home</a>
+  <a href="games.html">Games</a>
+  <a href="names.html">Names</a>
+  <a href="calendar.html">Calendar</a>
+  <a href="inspo.html">Inspo Pics</a>
+</nav>
+
+  <!-- CALENDAR -->
+  <div class="cal-wrapper">
+    <div class="month-nav">
+      <button class="month-nav-btn" onclick="changeMonth(-1)">&#8249;</button>
+      <div class="month-label" id="month-label">June 2026</div>
+      <button class="month-nav-btn" onclick="changeMonth(+1)">&#8250;</button>
+    </div>
+
+    <div class="cal-grid">
+      <div class="cal-day-headers">
+        <div class="cal-day-header">Sun</div>
+        <div class="cal-day-header">Mon</div>
+        <div class="cal-day-header">Tue</div>
+        <div class="cal-day-header">Wed</div>
+        <div class="cal-day-header">Thu</div>
+        <div class="cal-day-header">Fri</div>
+        <div class="cal-day-header">Sat</div>
+      </div>
+      <div class="cal-cells" id="cal-cells">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- EVENT DETAIL MODAL -->
+  <div class="modal-overlay" id="event-modal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeEventModal()">&#x2715;</button>
+      <div class="modal-event-title" id="modal-event-title"></div>
+      <div class="modal-detail" id="modal-event-time">
+        <span id="modal-time-text"></span>
+      </div>
+      <div class="modal-detail" id="modal-event-location" style="display:none;">
+        <span class="modal-detail-icon">📍</span>
+        <span id="modal-location-text"></span>
+      </div>
+      <div class="modal-detail" id="modal-event-desc" style="display:none;">
+        <span class="modal-detail-icon">📝</span>
+        <span id="modal-desc-text"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY EVENTS MODAL -->
+  <div class="modal-overlay" id="day-modal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeDayModal()">&#x2715;</button>
+      <div class="modal-event-title" id="day-modal-title"></div>
+      <div class="day-modal-list" id="day-modal-list"></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ICAL PARSER (ical.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/ical.js@1.5.0/build/ical.min.js"></script>
+
+  <script>
+    // ══════════════════════════════════════
+    // THEME
+    // ══════════════════════════════════════
+    const checkbox = document.getElementById("theme-checkbox");
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem("abbiebenTheme") || "light";
+    if (savedTheme === "dark") {
+      root.setAttribute("data-theme", "dark");
+      checkbox.checked = true;
+    }
+    checkbox.addEventListener("change", () => {
+      const theme = checkbox.checked ? "dark" : "light";
+      root.setAttribute("data-theme", theme);
+      localStorage.setItem("abbiebenTheme", theme);
+    });
+
+    // ══════════════════════════════════════
+    // TOAST
+    // ══════════════════════════════════════
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2800);
+    }
+
+    // ══════════════════════════════════════
+    // STATE
+    // ══════════════════════════════════════
+    let allEvents   = [];   // parsed events { title, start, end, allDay, location, description }
+    let viewYear    = new Date().getFullYear();
+    let viewMonth   = new Date().getMonth(); // 0-indexed
+// ══════════════════════════════════════
+// CONFIG — Add as many links as you want
+// ══════════════════════════════════════
+const CALENDAR_URLS = [
+  "webcal://p29-caldav.icloud.com/published/2/MTc4NjQzMTI1NjE3ODY0M1wNbcjaQt_MIoxk3e5IpdhyzCY2QdoxA0-R1cwNI5tngW98WJyLqIh7aG_xxDtQYkDNo9RSLUPms_zlbGqp8-Y",
+  "webcal://p29-caldav.icloud.com/published/2/MTc4NjQzMTI1NjE3ODY0M1wNbcjaQt_MIoxk3e5Ipdj3r123ax6GHifTaEFMpyPip42blWYxHIO12a8k5hRb09BOMelxR_6isj2Qtq16mxc",
+  "webcal://p166-caldav.icloud.com/published/2/MTc4NjQzMTI1NjE3ODY0M1wNbcjaQt_MIoxk3e5Ipdjukd3BAIYj23nkBclrSA0TaB3nOtdnvv0MCIRG7jaKrOjbdVVTZUrr2karUkmfUJM",
+  
+  "webcal://p29-caldav.icloud.com/published/2/MTc4NjQzMTI1NjE3ODY0M1wNbcjaQt_MIoxk3e5IpdgkDgDeU0jz3uUhxGhbMJmC-_F52jG8s5cR5TGQ0o6iy65xX63fnhtjw_vTfAJZ5HA"
+];
+
+const PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  url => `https://thingproxy.freeboard.io/fetch/${url}`
+];
+
+// ══════════════════════════════════════
+// FETCH ONE CALENDAR THROUGH PROXY CHAIN
+// ══════════════════════════════════════
+async function fetchCalendar(rawUrl) {
+  const url = rawUrl.replace(/^webcal:\/\//i, "https://");
+
+  for (let i = 0; i < PROXIES.length; i++) {
+    try {
+      const res = await fetch(PROXIES[i](url));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const text = await res.text();
+      if (!text.includes("BEGIN:VCALENDAR")) throw new Error("Not valid ICS");
+
+      return text; // ✅ success
+    } catch (err) {
+      console.warn(`Proxy ${i + 1} failed for ${rawUrl}:`, err.message);
+    }
+  }
+
+  console.error(`❌ All proxies failed for: ${rawUrl}`);
+  return null; // this calendar failed, skip it
+}
+
+// ══════════════════════════════════════
+// LOAD ALL FEEDS
+// ══════════════════════════════════════
+async function loadFeed() {
+  allEvents = [];
+  renderSkeleton();
+
+  // Fetch all calendars in parallel
+  const results = await Promise.all(CALENDAR_URLS.map(fetchCalendar));
+
+  let loaded = 0;
+  results.forEach(icsText => {
+    if (icsText) {
+      parseICS(icsText); // parseICS pushes into allEvents
+      loaded++;
+    }
+  });
+
+  if (loaded === 0) {
+    showToast("❌ Couldn't load any calendars");
+  } else if (loaded < CALENDAR_URLS.length) {
+    showToast(`⚠️ Loaded ${loaded} of ${CALENDAR_URLS.length} calendars`);
+  }
+
+  renderMonth();
+}
+
+// ══════════════════════════════════════
+// INIT — Auto-load on page start
+// ══════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  loadFeed();
+});
+
+    // ══════════════════════════════════════
+    // PARSE ICS
+    // ══════════════════════════════════════
+    function parseICS(icsText) {
+
+
+      try {
+        const jcal  = ICAL.parse(icsText);
+        const comp  = new ICAL.Component(jcal);
+        const vevents = comp.getAllSubcomponents("vevent");
+
+        vevents.forEach(vevent => {
+          const ev = new ICAL.Event(vevent);
+
+          // Handle recurring events
+          if (ev.isRecurring()) {
+            const iter  = ev.iterator();
+            const limit = new Date();
+            limit.setFullYear(limit.getFullYear() + 2);
+            let next;
+            let count = 0;
+
+            while ((next = iter.next()) && count < 200) {
+              const start = next.toJSDate();
+              if (start > limit) break;
+
+              const dur   = ev.duration;
+              const end   = new Date(start.getTime() + (dur ? dur.toSeconds() * 1000 : 0));
+
+              allEvents.push(buildEvent(ev, start, end));
+              count++;
+            }
+          } else {
+            const start = ev.startDate.toJSDate();
+            const end   = ev.endDate   ? ev.endDate.toJSDate() : start;
+            allEvents.push(buildEvent(ev, start, end));
+          }
+        });
+
+      } catch (err) {
+        console.error("ICS parse error:", err);
+        showToast("⚠️ Couldn't parse calendar data");
+      }
+    }
+
+    function buildEvent(ev, start, end) {
+      return {
+        title:       ev.summary       || "Untitled",
+        start,
+        end,
+        allDay:      ev.startDate.isDate,
+        location:    ev.location      || "",
+        description: ev.description   || ""
+      };
+    }
+
+    // ══════════════════════════════════════
+    // MONTH NAVIGATION
+    // ══════════════════════════════════════
+    function changeMonth(delta) {
+      viewMonth += delta;
+      if (viewMonth > 11) { viewMonth = 0;  viewYear++; }
+      if (viewMonth < 0)  { viewMonth = 11; viewYear--; }
+      renderMonth();
+    }
+
+    // ══════════════════════════════════════
+    // RENDER MONTH
+    // ══════════════════════════════════════
+    function renderMonth() {
+      const months = ["January","February","March","April","May","June",
+                      "July","August","September","October","November","December"];
+      document.getElementById("month-label").textContent = `${months[viewMonth]} ${viewYear}`;
+
+      const cells   = document.getElementById("cal-cells");
+      cells.innerHTML = "";
+
+      const today     = new Date();
+      const firstDay  = new Date(viewYear, viewMonth, 1).getDay();   // 0=Sun
+      const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+      const prevDays  = new Date(viewYear, viewMonth, 0).getDate();
+
+      // Previous month padding
+      for (let i = firstDay - 1; i >= 0; i--) {
+        cells.appendChild(makeCell(prevDays - i, viewMonth - 1, viewYear, true));
+      }
+
+      // Current month
+      for (let d = 1; d <= daysInMonth; d++) {
+        const isToday = (d === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear());
+        cells.appendChild(makeCell(d, viewMonth, viewYear, false, isToday));
+      }
+
+      // Next month padding
+      const total = firstDay + daysInMonth;
+      const remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
+      for (let d = 1; d <= remaining; d++) {
+        cells.appendChild(makeCell(d, viewMonth + 1, viewYear, true));
+      }
+    }
+
+    // ══════════════════════════════════════
+    // MAKE CELL
+    // ══════════════════════════════════════
+    function makeCell(day, month, year, otherMonth, isToday = false) {
+      // Normalise month overflow
+      const date = new Date(year, month, day);
+      const realYear  = date.getFullYear();
+      const realMonth = date.getMonth();
+      const realDay   = date.getDate();
+
+      const cell = document.createElement("div");
+      cell.className = "cal-cell" + (otherMonth ? " other-month" : "") + (isToday ? " today" : "");
+
+      const dateEl = document.createElement("div");
+      dateEl.className = "cell-date";
+      dateEl.textContent = realDay;
+      cell.appendChild(dateEl);
+
+      // Get events for this day
+      const dayEvents = getEventsForDay(realYear, realMonth, realDay);
+      const MAX_SHOW  = 3;
+
+      dayEvents.slice(0, MAX_SHOW).forEach(ev => {
+        const pill = document.createElement("div");
+        pill.className = "cal-event" + (ev.allDay ? " all-day" : "");
+        pill.textContent = ev.title;
+        pill.title = ev.title;
+        pill.onclick = (e) => { e.stopPropagation(); openEventModal(ev); };
+        cell.appendChild(pill);
+      });
+
+      if (dayEvents.length > MAX_SHOW) {
+        const more = document.createElement("div");
+        more.className = "more-events";
+        more.textContent = `+${dayEvents.length - MAX_SHOW} more`;
+        more.onclick = (e) => { e.stopPropagation(); openDayModal(realYear, realMonth, realDay, dayEvents); };
+        cell.appendChild(more);
+      }
+
+      return cell;
+    }
+
+    // ══════════════════════════════════════
+    // GET EVENTS FOR DAY
+    // ══════════════════════════════════════
+    function getEventsForDay(year, month, day) {
+      const target = new Date(year, month, day);
+      const targetEnd = new Date(year, month, day + 1);
+
+      return allEvents.filter(ev => {
+        const start = new Date(ev.start);
+        const end   = new Date(ev.end);
+        // Event overlaps this day
+        return start < targetEnd && end > target;
+      }).sort((a, b) => a.start - b.start);
+    }
+
+    // ══════════════════════════════════════
+    // EVENT DETAIL MODAL
+    // ══════════════════════════════════════
+    function openEventModal(ev) {
+      document.getElementById("modal-event-title").textContent = ev.title;
+
+      // Format time
+      const start = new Date(ev.start);
+      const end   = new Date(ev.end);
+      let timeStr;
+
+      if (ev.allDay) {
+        timeStr = formatDate(start);
+      } else {
+        timeStr = `${formatDate(start)}, ${formatTime(start)} – ${formatTime(end)}`;
+      }
+
+      document.getElementById("modal-time-text").textContent = timeStr;
+
+      const locEl  = document.getElementById("modal-event-location");
+      const descEl = document.getElementById("modal-event-desc");
+
+      if (ev.location) {
+        document.getElementById("modal-location-text").textContent = ev.location;
+        locEl.style.display = "flex";
+      } else {
+        locEl.style.display = "none";
+      }
+
+      if (ev.description) {
+        document.getElementById("modal-desc-text").textContent = ev.description;
+        descEl.style.display = "flex";
+      } else {
+        descEl.style.display = "none";
+      }
+
+      document.getElementById("event-modal").classList.add("open");
+    }
+
+    function closeEventModal() {
+      document.getElementById("event-modal").classList.remove("open");
+    }
+
+    // ══════════════════════════════════════
+    // DAY EVENTS MODAL
+    // ══════════════════════════════════════
+    function openDayModal(year, month, day, events) {
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      document.getElementById("day-modal-title").textContent = `${months[month]} ${day}`;
+
+      const list = document.getElementById("day-modal-list");
+      list.innerHTML = "";
+
+      events.forEach(ev => {
+        const item = document.createElement("div");
+        item.className = "day-modal-event";
+        const timeStr = ev.allDay ? "All day" : formatTime(new Date(ev.start));
+        item.innerHTML = `<strong>${ev.title}</strong><br><span style="font-weight:600;color:var(--text-muted);font-size:0.8rem;">${timeStr}</span>`;
+        item.onclick = () => { closeDayModal(); openEventModal(ev); };
+        list.appendChild(item);
+      });
+
+      document.getElementById("day-modal").classList.add("open");
+    }
+
+    function closeDayModal() {
+      document.getElementById("day-modal").classList.remove("open");
+    }
+
+    // Close modals on overlay click
+    document.getElementById("event-modal").addEventListener("click", e => {
+      if (e.target === e.currentTarget) closeEventModal();
+    });
+    document.getElementById("day-modal").addEventListener("click", e => {
+      if (e.target === e.currentTarget) closeDayModal();
+    });
+
+    // Close on Escape
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") { closeEventModal(); closeDayModal(); }
+    });
+
+    // ══════════════════════════════════════
+    // SKELETON LOADER
+    // ══════════════════════════════════════
+    function renderSkeleton() {
+      const cells = document.getElementById("cal-cells");
+      cells.innerHTML = "";
+      for (let i = 0; i < 35; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cal-cell skeleton-cell";
+        cells.appendChild(cell);
+      }
+    }
+
+    // ══════════════════════════════════════
+    // HELPERS
+    // ══════════════════════════════════════
+    function formatDate(d) {
+      return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+    }
+
+    function formatTime(d) {
+      return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+    }
+
+    // ══════════════════════════════════════
+    // INIT — restore saved feed URL
+    // ══════════════════════════════════════
+    const savedUrl = localStorage.getItem("calFeedUrl");
+    if (savedUrl) {
+      document.getElementById("feed-input").value = savedUrl;
+      loadFeed();
+    } else {
+      renderMonth();
+    }
+  </script>
+
+  <script>
+  /* Waffle menu */
+  const waffleBtn = document.getElementById('waffle-btn');
+  const drawer    = document.getElementById('nav-drawer');
+
+  waffleBtn.addEventListener('click', () => {
+    drawer.classList.toggle('open');
+  });
+
+  drawer.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => drawer.classList.remove('open'));
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!drawer.contains(e.target) && !waffleBtn.contains(e.target)) {
+      drawer.classList.remove('open');
+    }
+  });
+
+  /* QR Code */
+  const qrBtn    = document.getElementById('qr-btn');
+  const qrModal  = document.getElementById('qr-modal');
+  const qrClose  = document.getElementById('qr-close');
+  const qrCanvas = document.getElementById('qr-canvas');
+  let qrDone     = false;
+
+  qrBtn.addEventListener('click', () => {
+    if (!qrDone) {
+      const url = window.location.href;
+      document.getElementById('qr-url-text').textContent = url;
+      QRCode.toCanvas(qrCanvas, url, { width: 220, margin: 2,
+        color: { dark: '#FF2D78', light: '#ffffff' }
+      });
+      qrDone = true;
+    }
+    qrModal.classList.add('open');
+  });
+
+  qrClose.addEventListener('click', () => qrModal.classList.remove('open'));
+  qrModal.addEventListener('click', (e) => {
+    if (e.target === qrModal) qrModal.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') qrModal.classList.remove('open');
+  });
+</script>
+
+</body>
+</html>
